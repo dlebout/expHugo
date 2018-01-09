@@ -1,0 +1,23 @@
+
+<script src="lib/jquery.min.js"></script>
+<link rel="stylesheet" href="assets/css/login.css">
+
+<div class="login">
+
+
+	<button id="submit" type="submit" class="btn btn-primary btn-block btn-large">Click when ready</button>
+
+</div>
+
+<script>
+
+// J'ajoute plus un a la redirection
+$( "#submit" ).click(function() {
+	var URL = window.location.href;
+	var res = URL.split("/");
+	var next_app = parseInt(res[res.length-1]) +1;
+  console.log("Store Data")
+	window.location = '/application/count_groups/'+ next_app  ;
+
+});
+</script>

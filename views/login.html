@@ -1,0 +1,34 @@
+
+
+<link rel="stylesheet" href="assets/css/login.css">
+
+<div class="login">
+
+	<form method="post" action="/send_form" name="form_send">
+
+	  <input type="text" name="user_id" placeholder="ID" required><br/>
+		<input type="text" name="name" placeholder="FirstName"><br/>
+
+		<input type="text" name="age" placeholder="Age"><br/>
+		<br/>
+		Handedness : <input type="radio" name="hand" value="right" id="right" /> <label for="right"> Right</label>
+  	<input type="radio" name="hand" value="left" id="left" /> <label for="left">Left</label>
+		<br/><br/>
+		Gender : <input type="radio" name="gender" value="female" id="female" /> <label for="female"> Female</label>
+  	<input type="radio" name="gender" value="male" id="male" /> <label for="male">Male</label>
+		<br/><br/>
+		<select name="visual_variable">
+			  <option value="CrossingSpeedFrequency">CrossingSpeedFrequency</option>
+		</select>
+
+
+	<br/><br/><br/>
+
+
+	  <button type="submit" class="btn btn-primary btn-block btn-large">Start</button>
+	</form>
+</div>
+
+<script>
+
+</script>
