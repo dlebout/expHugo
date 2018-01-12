@@ -106,9 +106,9 @@ $.get( '/data/'+data_path, function(data) {
       .layout("linkDistance", 200)
       .create_layout()
       .tracks("count", 1 )
-          
+
       .create_WEBGL_element()
-  
+
       .link_properties("curvature", 5)
       .link_properties("color", "#b5b5b5")
       .link_properties("size", 3)
@@ -127,12 +127,12 @@ $.get( '/data/'+data_path, function(data) {
       // // .nodes_mapping("x", function(d, i) {console.log("D VALUE", d); return d.px; })
       // .nodes_mapping("y", function(d, i) {return d.py;  })
       // // .particle_mapping("color", function(d, i) {return color_scale(d.speed); })
-      .particles("color", "black")
+      .particles("color", function(d, i) {return d.color; })
       .particles("size", 10)
       .particles("frequency", function(d, i) {return d.frequency; })
       .particles("pattern", function(d, i) {return d.temporal; })
       .particles("speed", function(d, i) {return d.speed; })
-      
+
       //.particle_mapping("texture", "images/rectangle_texture.png")
       .on("end", function() { launch_timer(); })
       .start_particle_delay(10000)

@@ -86,7 +86,7 @@
 var data_path = <%- JSON.stringify(data) %>;
 console.log(data_path)
 $.get( '/data/'+data_path, function(data) {
-
+ var infoStaticVariable = {}
  var app = flownet.force("#visFrame", 950 ,900, "black",0)
       .nodes(data.nodes)
       .links(data.links)
@@ -94,11 +94,12 @@ $.get( '/data/'+data_path, function(data) {
       .layout("linkDistance", 200)
       .create_layout()
       .tracks("count", 1 )
-          
+
       .create_WEBGL_element()
-  
+
+
       .link_properties("curvature", 5)
-      .link_properties("color", "black")
+      .link_properties("color", "#b5b5b5")
       .link_properties("size", 3)
 
 
@@ -115,12 +116,12 @@ $.get( '/data/'+data_path, function(data) {
       // // .nodes_mapping("x", function(d, i) {console.log("D VALUE", d); return d.px; })
       // .nodes_mapping("y", function(d, i) {return d.py;  })
       // // .particle_mapping("color", function(d, i) {return color_scale(d.speed); })
-      .particles("color", "white")
+      .particles("color", function(d, i) {return d.color; })
       .particles("size", 10)
       .particles("frequency", function(d, i) {return d.frequency; })
       .particles("pattern", function(d, i) {return d.temporal; })
       .particles("speed", function(d, i) {return d.speed; })
-      
+
       //.particle_mapping("texture", "images/rectangle_texture.png")
 
       .start_particle_delay(10000)
@@ -134,7 +135,7 @@ $.get( '/data/'+data_path, function(data) {
         links_position = app.sparkiz.get_links()
 
         console.log(nodes_position)
-        //console.log("NOOOODES", nodes_position)
+        console.log("NOOOODES", links_position)
         graphD3 = new d3_graph(nodes_position, links_position, 900);
 
 
