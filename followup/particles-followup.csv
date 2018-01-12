@@ -1,0 +1,13 @@
+participant_id,practice,block,trial,visualVariable,groupCount,graphSize,staticVariable1,staticVariable1Count,staticVariable2,staticVariable2Count
+0,true,0,0,CrossingSpeedFrequency,Medium,Low,Color,2,Size,1
+0,true,0,0,CrossingSpeedFrequency,Medium,Low,Color,4,Size,1
+0,true,0,0,CrossingSpeedFrequency,Medium,Low,Color,6,Size,1
+0,true,0,0,CrossingSpeedFrequency,Medium,Low,Color,1,Size,2
+0,true,0,0,CrossingSpeedFrequency,Medium,Low,Color,1,Size,4
+0,true,0,0,CrossingSpeedFrequency,Medium,Low,Color,1,Size,6
+0,true,0,0,CrossingSpeedFrequency,Medium,Low,Color,2,Size,2
+0,true,0,0,CrossingSpeedFrequency,Medium,Low,Color,4,Size,4
+0,true,0,0,CrossingSpeedFrequency,Medium,Low,Color,6,Size,6
+0,true,0,0,CrossingSpeedFrequency,Medium,Low,Color,1,Size,1
+0,true,0,0,CrossingSpeedFrequency,Medium,Low,Color,1,Size,1
+0,true,0,0,CrossingSpeedFrequency,Medium,Low,Color,1,Size,1
