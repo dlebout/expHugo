@@ -3,7 +3,6 @@
 var Expe = function (array) {
     this.array_expe = array;
 
-
     this.max_id_expe = array.length;
     this.state = 0;
     this.header = null;
@@ -24,17 +23,28 @@ Expe.prototype.set_new_state = function (state) {
 }
 
 Expe.prototype.set_infos = function () {
-
-  // console.log(this.array_expe)
   this.is_new_block = true;
   this.block = this.array_expe[this.state].block;
   this.trial = this.array_expe[this.state].trial;
   this.group_count = this.array_expe[this.state].groupCount;
   this.graph_size = this.array_expe[this.state].graphSize;
-  this.visualVariable = "CrossingSpeedFrequency";//this.array_expe[this.state].visualVariable;
+  this.visual_variable = this.array_expe[this.state].visualVariable;
 
-  //console.log(this.array_expe)
-  this.dataSet = this.visualVariable + "/" + this.group_count +"/" + this.graph_size +"/" + "data_expe_temporal.json"//"data_fixed.json";//this.array_expe[this.state].dataSet;
+  this.static_variables = []
+  line = Object.keys(this.array_expe[this.state]).map(key => this.array_expe[this.state][key])
+  path = ""
+  for (var j = 7 ;j < line.length; j+=2) {
+    this.static_variables.push(line[j])
+    this.static_variables.push(line[j+1])
+    if ( line[j+1] !== '1' ) path += ""+ line[j] + "/" + line[j+1] + "/"
+  }
+
+  this.dataSet = this.visual_variable + "/"
+    + this.group_count +"/"
+    + this.graph_size +"/"
+    + path
+    + "data_expe_temporal.json"//"data_fixed.json";//this.array_expe[this.state].dataSet;
+  console.log(this.dataSet);
 
   this.description = "TEXT";
   // if (this.visualVariable == "TemporalDistribution") { this.header = "temporal distributions";}

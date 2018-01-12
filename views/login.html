@@ -6,10 +6,10 @@
 
 	<form method="post" action="/send_form" name="form_send">
 
-	  <input type="text" name="user_id" placeholder="ID" required><br/>
-		<input type="text" name="name" placeholder="FirstName"><br/>
+	  <input type="text" name="user_id" placeholder="ID" required value=0><br/>
+		<input type="text" name="name" placeholder="FirstName" value=a><br/>
 
-		<input type="text" name="age" placeholder="Age"><br/>
+		<input type="text" name="age" placeholder="Age" value=22><br/>
 		<br/>
 		Handedness : <input type="radio" name="hand" value="right" id="right" /> <label for="right"> Right</label>
   	<input type="radio" name="hand" value="left" id="left" /> <label for="left">Left</label>
@@ -17,8 +17,15 @@
 		Gender : <input type="radio" name="gender" value="female" id="female" /> <label for="female"> Female</label>
   	<input type="radio" name="gender" value="male" id="male" /> <label for="male">Male</label>
 		<br/><br/>
-		<select name="visual_variable">
+		<br/><br/>
+		Visual variable : <select name="visual_variable">
 			  <option value="CrossingSpeedFrequency">CrossingSpeedFrequency</option>
+				<option value="Speed">Speed</option>
+		</select>
+		Static variable : <select name="static_variable">
+				<option value="None">None</option>
+				<option value="Color">Color</option>
+				<option value="Size">Size</option>
 		</select>
 
 

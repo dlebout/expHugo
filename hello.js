@@ -57,6 +57,9 @@ app.listen(server_port, function () {
   console.log("Particle Vis listening at http://%s:%s", server_port);
 })
 
+app.get('/login', function (req, res) {
+  res.sendfile('views/login.html');
+});
 
 app.post('/send_form', function (req, res) {
   console.log("SEND")
@@ -69,18 +72,15 @@ app.post('/send_form', function (req, res) {
   age = req.body.age;
   gender = req.body.gender;
   visual_variable = req.body.visual_variable;
+  static_variable = req.body.static_variable;
 
-  console.log(user_id, name, hand, date, age, gender, visual_variable)
+  console.log(user_id, name, hand, date, age, gender, visual_variable, static_variable )
   log_users(user_id, name, hand, date, age, gender)
   res.statusCode = 302;
   res.setHeader("Location", "/read_csv");
+  res.send('toast')
   res.end();
 });
-
-app.get('/login', function (req, res) {
-  res.sendfile('views/login.html');
-});
-
 
 app.get('/data/:id_data', function (req, res) {
   //var URL = req.headers.referer.split('/')[3];
@@ -96,18 +96,21 @@ app.get('/data/:id_data', function (req, res) {
 });
 /********* PERMET DE LIRE LE CSV ***********************/
 app.get('/read_csv', function (req, res) {
-    var array = [];
-    var reader = csv.createCsvFileReader("particles-followup-15.csv", { separator : ',' }); // quotes around property name are optional});
-    reader.setColumnNames([ "Participant","Practice","Block","Trial","GroupCount","GraphSize"]);
+    var reader = csv.createCsvFileReader("./followup/particles-followup.csv", { separator : ',', columnsFromHeader: true  });
+    if ( !reader ) { console.log('no csv file for ' + visual_variable); return}
+    var array = []
+
     reader.addListener('data', function(data) {
-    	// console.log(data)
-       array.push({ "participant_id" : data.Participant, "practice" : data.Practice, "block" : data.Block, "trial" : data.Trial, "visualVariable" : "CrossingSpeedFrequency" , "groupCount" : data.GroupCount , "graphSize" : data.GraphSize})
+       array.push(data)
     });
     reader.on('end', function() {
-        array = return_by_id(array);
         //console.log(array);
+        array = return_by_id(array);
         expe = new Expe(array);
-        create_db_expe();
+
+        staticVariables = Object.keys(array[0])
+        staticVariables.splice(0,7)
+        create_db_expe(staticVariables);
         res.statusCode = 302;
         res.setHeader("Location", "/application/count_groups/0");
         res.end();
@@ -133,11 +136,13 @@ app.post('/create_json_file', function (req, res) {
 
 /**************** STORING DATA FOR THE CLASSYFYING GROUPS ************************/
 app.post('/store_data', function (req, res) {
+  console.log('**********************************************************');
+  console.log(req.body);
   end = Date.now();
   var temps_ecoule = (end - start) / 1000;
   temps_ecoule -= 1;
   console.log("TEMPS ECOULE", end - start);
-  console.log("Visual Variable", expe.visualVariable)
+  console.log("Visual Variable", expe.visual_variable)
   var task_number = req.headers.referer.split('/')[4];
   add_to_table(req.body, temporary_counting_groups.time, temps_ecoule)
 
@@ -179,8 +184,8 @@ app.get('/application/count_groups/:id_map', function (req, res) {
   var id = parseInt(req.params.id_map);
   //console.log(expe)
   expe.set_new_state(id);
-  console.log(expe.dataSet)
-  res.render('count_groups', { id_user :id_utilisateur, header: expe.header, description: expe.description , data : expe.dataSet, trial: id+1, max_trial:expe.max_id_expe, visualVariable:expe.visualVariable });
+  console.log('static_variables',expe.static_variables);
+  res.render('count_groups', { id_user :id_utilisateur, header: expe.header, description: expe.description , data : expe.dataSet, trial: id+1, max_trial:expe.max_id_expe, visualVariable:expe.visual_variable });
 });
 /************** APPLICATION CLASYFYING GROUPS *****************/
 app.get('/application/:id_map', function (req, res) {
@@ -195,7 +200,7 @@ app.get('/application/:id_map', function (req, res) {
   }
   else{
     res.statusCode = 302;
-    res.render('index', { id_user :id_utilisateur, header: expe.header, description: expe.description , data : expe.dataSet, trial: id+1, max_trial:expe.max_id_expe, visualVariable:expe.visualVariable });
+    res.render('index', { id_user :id_utilisateur, header: expe.header, description: expe.description , data : expe.dataSet, trial: id+1, max_trial:expe.max_id_expe, visualVariable:expe.visual_variable });
     res.end();
   }
 });
@@ -223,6 +228,7 @@ app.get('/*', function (req, res) {
 
 /******************* FONCTION UTILES *****************/
 
+
 function log_users(id, name, hand, date, age, gender){
   id_utilisateur = id;
   create_db_user(id);
@@ -233,7 +239,7 @@ function log_users(id, name, hand, date, age, gender){
 }
 
 
-function create_db_expe(){
+function create_db_expe(staticVariables){
   var dt = new Date();
   var date = dt.getFullYear() + "_" + (dt.getMonth() + 1) + "_" + dt.getDate() + "_" + dt.getHours() + "h_" + dt.getMinutes()+ "mn_" + dt.getSeconds();
   //SI LE FICHIER N"EXISTE PAS JE LE CREE
@@ -252,8 +258,13 @@ function create_db_expe(){
     // 8 - Temps 1 ere expe
     // 9 - Temps 2 eme expe
 
-  db_expe.writeRecord(['USER_ID',"BLOCK", "TRIAL", "GROUP_COUNT","GRAPH_SIZE", "VISUAL_VARIABLE","NUMBER_OF_GROUPS","NUMBER_OF_NODES","NUMBER_OF_EDGES",'MISLABELED_EDGES','NUMBER_MISLABELED_EDGES','NUMBER_GROUPS_FOUND_FIRST_STEP','NUMBER_GROUPS_FOUND_SECOND_STEP',"HIT_FIRST_STEP","HIT_SECOND_STEP", "PERCENT_EDGES_WRONG_PLACEMENT","TIME_COUNTING_GROUPS","TIME_CLASSIFYING_GROUPS","DATABASE_GROUP","USER_GROUP","SIMILARITY_ARRAY","G1","G2","G3","G4","G5","G6","BRUT_DATA"]);
+  header = ['USER_ID',"BLOCK", "TRIAL", "GROUP_COUNT","GRAPH_SIZE", "VISUAL_VARIABLE","NUMBER_OF_GROUPS","NUMBER_OF_NODES","NUMBER_OF_EDGES",
+    'MISLABELED_EDGES','NUMBER_MISLABELED_EDGES','NUMBER_GROUPS_FOUND_FIRST_STEP','NUMBER_GROUPS_FOUND_SECOND_STEP',"HIT_FIRST_STEP","HIT_SECOND_STEP", "PERCENT_EDGES_WRONG_PLACEMENT",
+    "TIME_COUNTING_GROUPS","TIME_CLASSIFYING_GROUPS","DATABASE_GROUP","USER_GROUP","SIMILARITY_ARRAY","G1","G2","G3","G4","G5","G6","BRUT_DATA"]
+  header.splice(6, 0, ...staticVariables);
+
   console.log('Found file');
+  db_expe.writeRecord(header);
   // }
   //SI IL EXISTE J'APPEND MES DONNEES A LA SUITE
   // else{
@@ -262,12 +273,10 @@ function create_db_expe(){
 }
 
 function add_to_table(value,  time_counting_groups, time_classifying_groups){
-  //console.log(value)
   if (id_utilisateur == null){console.log("id_utilisateur est null ...."); }
 
   //Transform to array
   var array = JSON.stringify(value);
-
 
 
   var model = get_number_groups(value.links);
@@ -300,12 +309,12 @@ function add_to_table(value,  time_counting_groups, time_classifying_groups){
   // PERMET DE MESURER L'ERREUR
   var rate = rate_error(model, user_groups);
   console.log("SIMILARITY ARRAY\n", rate.array_of_symilarity)
-  //console.log(  expe.block,expe.trial,expe.group_count,expe.graph_size,expe.visualVariable)
+  //console.log(  expe.block,expe.trial,expe.group_count,expe.graph_size,expe.visual_variable)
   //{"edge_wrong_placement":data, "number_groups_found": user_groups.length, "total_group": models.length, "isWinning":iswinning }
 
   //CALCUL LE MAX DE CHAQUE LIGNE DE LA MATRICE DE SIMILARITE
   //Special pour Temporal car la distribution change
-  if (expe.visualVariable == "TemporalDistribution"){
+  if (expe.visual_variable == "TemporalDistribution"){
     if (expe.group_count == "Small"){
       var G2 = Math.max.apply(Math, rate.array_of_symilarity[0]);
       var G6 = Math.max.apply(Math, rate.array_of_symilarity[1]);
@@ -341,10 +350,17 @@ function add_to_table(value,  time_counting_groups, time_classifying_groups){
 
   //Calcul le pourcentage pour que ca marche
   var percent_wrong_edges = rate.edge_wrong_placement.length / value.links.length;
-  db_expe.writeRecord([id_utilisateur,expe.block,expe.trial,expe.group_count,expe.graph_size,expe.visualVariable, model.length, value.nodes.length, value.links.length, rate.edge_wrong_placement, rate.edge_wrong_placement.length, temporary_counting_groups.number_of_groups, rate.number_groups_found, isWinning_FIRST_STEP ,rate.isWinning , percent_wrong_edges, time_counting_groups, time_classifying_groups, JSON.stringify(model), JSON.stringify(user_groups), JSON.stringify(rate.array_of_symilarity), G1,G2,G3,G4,G5,G6, array ]);
+
+  res= [id_utilisateur,expe.block,expe.trial,expe.group_count,expe.graph_size,expe.visual_variable, model.length, value.nodes.length, value.links.length,
+    rate.edge_wrong_placement, rate.edge_wrong_placement.length, temporary_counting_groups.number_of_groups, rate.number_groups_found, isWinning_FIRST_STEP ,rate.isWinning ,
+    percent_wrong_edges, time_counting_groups, time_classifying_groups, JSON.stringify(model), JSON.stringify(user_groups), JSON.stringify(rate.array_of_symilarity), G1,G2,G3,G4,G5,G6, array ]
+  res.splice(6, 0, ...expe.static_variables);
+
+  db_expe.writeRecord(res);
 
   console.log("TEMPORARY", temporary_counting_groups)
 }
+
 function getSortedKeys(obj) {
     var keys = []; for(var key in obj) keys.push(key);
     return keys.sort(function(a,b){return obj[a]-obj[b]});
@@ -452,10 +468,10 @@ function get_number_groups(array){
   var tab = [];
   //console.log(array)
   for (var i=0; i<array.length; i++){
-    if (expe.visualVariable == "TemporalDistribution") tab.push(array[i].temporal.toString())
-    if (expe.visualVariable == "Speed") tab.push(array[i].speed.toString())
-    if (expe.visualVariable == "PatternFrequency") tab.push(array[i].frequency.toString())
-    if (expe.visualVariable == "CrossingSpeedFrequency") tab.push(array[i].speed.toString())
+    if (expe.visual_variable == "TemporalDistribution") tab.push(array[i].temporal.toString())
+    if (expe.visual_variable == "Speed") tab.push(array[i].speed.toString())
+    if (expe.visual_variable == "PatternFrequency") tab.push(array[i].frequency.toString())
+    if (expe.visual_variable == "CrossingSpeedFrequency") tab.push(array[i].speed.toString())
   }
   //console.log(tab)
 
@@ -531,8 +547,16 @@ function return_by_id(array){
     for (var i=0; i<array.length; i++){
       //A CHANGER POUR AVOIR LE BON UTILISATEUR
       //if (parseInt(array[i].participant_id) == 0){
-      if (parseInt(array[i].participant_id) == id_utilisateur && array[i].visualVariable == visual_variable){
-        tab.push(array[i])
+      if (parseInt(array[i].participant_id) == id_utilisateur && array[i].visualVariable == visual_variable ){
+        line = Object.keys(array[i]).map(key => array[i][key])
+        insert = true
+        for (var j = 7 ;j < line.length; j+=2) {
+          if ( (line[j] === static_variable && line[j+1] === '1') || (line[j] !== static_variable && line[j+1] !== '1') ) insert = false
+        }
+        if ( insert  ){
+          tab.push(array[i])
+        }
+
       }
     }
     return tab;
