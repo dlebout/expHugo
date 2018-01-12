@@ -200,7 +200,7 @@ $.get( '/data/'+data_path, function(data) {
         //console.log(edges_infos);
       }
       else{
-       send_data({"links": graphD3.edge_array, "nodes": graphD3.node_array});
+       send_data(JSON.parse(JSON.stringify({"links": graphD3.edge_array, "nodes": graphD3.node_array})));
      }
 
 
