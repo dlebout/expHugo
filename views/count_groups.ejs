@@ -128,7 +128,7 @@ $.get( '/data/'+data_path, function(data) {
       // .nodes_mapping("y", function(d, i) {return d.py;  })
       // // .particle_mapping("color", function(d, i) {return color_scale(d.speed); })
       .particles("color", function(d, i) {return d.color; })
-      .particles("size", 10)
+      .particles("size", function(d, i) {return d.sizeParticule; })
       .particles("frequency", function(d, i) {return d.frequency; })
       .particles("pattern", function(d, i) {return d.temporal; })
       .particles("speed", function(d, i) {return d.speed; })

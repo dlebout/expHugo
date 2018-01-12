@@ -466,12 +466,12 @@ function delete_doublons(array){
 function get_number_groups(array){
   //Transform array in string
   var tab = [];
-  //console.log(array)
+  console.log(array)
   for (var i=0; i<array.length; i++){
     if (expe.visual_variable == "TemporalDistribution") tab.push(array[i].temporal.toString())
-    if (expe.visual_variable == "Speed") tab.push(array[i].speed.toString())
-    if (expe.visual_variable == "PatternFrequency") tab.push(array[i].frequency.toString())
-    if (expe.visual_variable == "CrossingSpeedFrequency") tab.push(array[i].speed.toString())
+    if (expe.visual_variable == "Speed") tab.push(array[i].speedParticule.toString())
+    if (expe.visual_variable == "PatternFrequency") tab.push(array[i].frequencyParticule.toString())
+    if (expe.visual_variable == "CrossingSpeedFrequency") tab.push(array[i].speedParticule.toString())
   }
   //console.log(tab)
 
