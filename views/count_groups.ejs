@@ -133,7 +133,7 @@ $.get( '/data/'+data_path, function(data) {
       .particles("pattern", function(d, i) {return d.temporal; })
       .particles("speed", function(d, i) {return d.speed; })
 
-      //.particle_mapping("texture", "images/rectangle_texture.png")
+      .particles("texture", function(d, i) {return "images/"+ d.shape +"_texture.png";})
       .on("end", function() { launch_timer(); })
       .start_particle_delay(10000)
       .start(0);
