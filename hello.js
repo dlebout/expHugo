@@ -101,10 +101,10 @@ app.get('/read_csv', function (req, res) {
     var array = []
 
     reader.addListener('data', function(data) {
+      console.log("dtatatattat",data);
        array.push(data)
     });
     reader.on('end', function() {
-        //console.log(array);
         array = return_by_id(array);
         expe = new Expe(array);
 
@@ -277,6 +277,7 @@ function add_to_table(value,  time_counting_groups, time_classifying_groups){
 
   //Transform to array
   var array = JSON.stringify(value);
+  console.log(array);
 
 
   var model = get_number_groups(value.links);
@@ -384,7 +385,6 @@ function rate_error(models, user_groups){
       }
       array_of_symilarity.push(tab);
   }
-  //console.log("SIMILARITY ARRAY\n", array_of_symilarity)
 
   // RECUPERE LA VALEUR MXIMUM L'ASSOCIE AU GROUPE ET EXCLU LE GROUP ET L'USER POUR LES PROCHAINE ITERATION
   // PUIS
@@ -451,7 +451,6 @@ function rate_error(models, user_groups){
   console.log("EDGES WRONG PLACEMENT\n", edge_wrong_placement)
   return {"edge_wrong_placement":edge_wrong_placement, "number_groups_found": user_groups.length, "isWinning": iswinning, 'array_of_symilarity':array_of_symilarity }
 
-
 }
 
 function delete_doublons(array){
@@ -466,12 +465,11 @@ function delete_doublons(array){
 function get_number_groups(array){
   //Transform array in string
   var tab = [];
-  //console.log(array)
   for (var i=0; i<array.length; i++){
     if (expe.visual_variable == "TemporalDistribution") tab.push(array[i].temporal.toString())
-    if (expe.visual_variable == "Speed") tab.push(array[i].speed.toString())
-    if (expe.visual_variable == "PatternFrequency") tab.push(array[i].frequency.toString())
-    if (expe.visual_variable == "CrossingSpeedFrequency") tab.push(array[i].speed.toString())
+    if (expe.visual_variable == "Speed") tab.push(array[i].speedParticule.toString())
+    if (expe.visual_variable == "PatternFrequency") tab.push(array[i].frequencyParticule.toString())
+    if (expe.visual_variable == "CrossingSpeedFrequency") tab.push(array[i].speedParticule.toString())
   }
   //console.log(tab)
 
@@ -550,7 +548,7 @@ function return_by_id(array){
       if (parseInt(array[i].participant_id) == id_utilisateur && array[i].visualVariable == visual_variable ){
         line = Object.keys(array[i]).map(key => array[i][key])
         insert = true
-        for (var j = 7 ;j < line.length; j+=2) {
+        for (var j = 7 ;j < line.length; j+=3) {
           if ( (line[j] === static_variable && line[j+1] === '1') || (line[j] !== static_variable && line[j+1] !== '1') ) insert = false
         }
         if ( insert  ){

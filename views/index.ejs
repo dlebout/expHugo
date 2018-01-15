@@ -99,13 +99,15 @@ $.get( '/data/'+data_path, function(data) {
 
 
       .link_properties("curvature", 5)
-      .link_properties("color", "#b5b5b5")
+      .link_properties("color", "lightgrey")
       .link_properties("size", 3)
 
 
-      .node_properties("color", "#999797")
+      .node_properties("color", "lightgrey")
       .node_properties("size", 7)
-      //.nodes_mapping("label", function(d, i) {return d.id; })
+      .node_properties("label", function(d, i) { return d.id; })
+      .node_properties("label_size", 10)
+      .node_properties("label_color", 'black')
 
       // .roads_mapping("opacity", 0)
       // .roads_mapping("color", "#66c2a5")
@@ -117,12 +119,12 @@ $.get( '/data/'+data_path, function(data) {
       //.nodes_mapping("y", function(d, i) {return d.py;  })
       //.particle_mapping("color", function(d, i) {return color_scale(d.speed); })
       .particles("color", function(d, i) {return d.color; })
-      .particles("size", 10)
+      .particles("size", function(d, i) {return d.sizeParticule; })
       .particles("frequency", function(d, i) {return d.frequency; })
       .particles("pattern", function(d, i) {return d.temporal; })
       .particles("speed", function(d, i) {return d.speed; })
 
-      //.particle_mapping("texture", "images/rectangle_texture.png")
+      .particles("texture", function(d, i) {return "images/"+ d.shape +"_texture.png";})
 
       .start_particle_delay(10000)
       .start(0);
@@ -134,8 +136,8 @@ $.get( '/data/'+data_path, function(data) {
         nodes_position = app.sparkiz.get_nodes()
         links_position = app.sparkiz.get_links()
 
-        console.log(nodes_position)
-        console.log("NOOOODES", links_position)
+        //console.log(nodes_position)
+        //console.log("NOOOODES", links_position)
         graphD3 = new d3_graph(nodes_position, links_position, 900);
 
 

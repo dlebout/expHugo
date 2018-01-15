@@ -33,10 +33,11 @@ Expe.prototype.set_infos = function () {
   this.static_variables = []
   line = Object.keys(this.array_expe[this.state]).map(key => this.array_expe[this.state][key])
   path = ""
-  for (var j = 7 ;j < line.length; j+=2) {
+  for (var j = 7 ;j < line.length; j+=3) {
     this.static_variables.push(line[j])
     this.static_variables.push(line[j+1])
-    if ( line[j+1] !== '1' ) path += ""+ line[j] + "/" + line[j+1] + "/"
+    this.static_variables.push(line[j+2])
+    if ( line[j+1] !== '1' ) path += ""+ line[j] + "/" + line[j+1] + "/" + "Mapping_"+line[j+2] + "/"
   }
 
   this.dataSet = this.visual_variable + "/"
