@@ -113,9 +113,9 @@ $.get( '/data/'+data_path, function(data) {
       .controls(false)
       .node_properties("x", function(d, i) {return d.X; })
       .node_properties("y", function(d, i) {return - d.Y;  })
-      // // .nodes_mapping("x", function(d, i) {console.log("D VALUE", d); return d.px; })
-      // .nodes_mapping("y", function(d, i) {return d.py;  })
-      // // .particle_mapping("color", function(d, i) {return color_scale(d.speed); })
+      //.nodes_mapping("x", function(d, i) {console.log("D VALUE", d); return d.px; })
+      //.nodes_mapping("y", function(d, i) {return d.py;  })
+      //.particle_mapping("color", function(d, i) {return color_scale(d.speed); })
       .particles("color", function(d, i) {return d.color; })
       .particles("size", 10)
       .particles("frequency", function(d, i) {return d.frequency; })
@@ -200,7 +200,7 @@ $.get( '/data/'+data_path, function(data) {
         //console.log(edges_infos);
       }
       else{
-       send_data(JSON.parse(JSON.stringify({"links": graphD3.edge_array, "nodes": graphD3.node_array})));
+       send_data({"links": graphD3.edge_array, "nodes": graphD3.node_array});
      }
 
 
