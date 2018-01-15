@@ -116,6 +116,14 @@ app.get('/read_csv', function (req, res) {
         res.end();
     });
 });
+
+/********* PERMET DE LIRE LE CSV ***********************/
+app.get('/createLayout', function (req, res) {
+    
+  res.render('generateNetwork', {});
+
+});
+
 // SERT A ME CREER LE JSON POUR FIXER MES NOEUDS
 app.post('/create_json_file', function (req, res) {
   //console.log(req.body)
@@ -130,7 +138,8 @@ app.post('/create_json_file', function (req, res) {
   //var u = JSON.stringify(obj)
   var string = '{ "nodes" :'+ nodes+', "links" : '+links+'}';
 
-  fs.writeFile('data/'+path[0]+'/'+path[1]+ '/'+path[2]+'/data_fixed.json',string)
+  // fs.writeFile('data/'+path[0]+'/'+path[1]+ '/'+path[2]+'/data_fixed.json',string)
+  fs.writeFile('data/'+ guid() +'.json',string)
   res.end(JSON.stringify({status:"OK"}));
 });
 
@@ -228,7 +237,14 @@ app.get('/*', function (req, res) {
 
 /******************* FONCTION UTILES *****************/
 
-
+function guid() {
+    function s4() {
+        return Math.floor((1 + Math.random()) * 0x10000)
+        .toString(16)
+        .substring(1);
+    }
+    return s4() + s4() + '-' + s4() + '-' + s4() + '-' +s4() + '-' + s4() + s4() + s4();
+}
 function log_users(id, name, hand, date, age, gender){
   id_utilisateur = id;
   create_db_user(id);

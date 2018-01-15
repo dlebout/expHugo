@@ -113,11 +113,11 @@ $.get( '/data/'+data_path, function(data) {
       // .roads_mapping("color", "#66c2a5")
 
       .controls(false)
-      .node_properties("x", function(d, i) {return d.X; })
-      .node_properties("y", function(d, i) {return - d.Y;  })
-      //.nodes_mapping("x", function(d, i) {console.log("D VALUE", d); return d.px; })
-      //.nodes_mapping("y", function(d, i) {return d.py;  })
-      //.particle_mapping("color", function(d, i) {return color_scale(d.speed); })
+      // .node_properties("x", function(d, i) {return d.X; })
+      // .node_properties("y", function(d, i) {return - d.Y;  })
+      // // .nodes_mapping("x", function(d, i) {console.log("D VALUE", d); return d.px; })
+      // .nodes_mapping("y", function(d, i) {return d.py;  })
+      // // .particle_mapping("color", function(d, i) {return color_scale(d.speed); })
       .particles("color", function(d, i) {return d.color; })
       .particles("size", function(d, i) {return d.sizeParticule; })
       .particles("frequency", function(d, i) {return d.frequency; })
@@ -132,48 +132,48 @@ $.get( '/data/'+data_path, function(data) {
 
         // $( "#play" ).html("<i class='fa fa-play' aria-hidden='true'></i>");
         // $( "#pause" ).html("<i class='fa fa-pause' aria-hidden='true'></i>");
-      setTimeout(function(){
-        nodes_position = app.sparkiz.get_nodes()
-        links_position = app.sparkiz.get_links()
+      // setTimeout(function(){
+      //   nodes_position = app.sparkiz.get_nodes()
+      //   links_position = app.sparkiz.get_links()
 
-        //console.log(nodes_position)
-        //console.log("NOOOODES", links_position)
-        graphD3 = new d3_graph(nodes_position, links_position, 900);
-
-
-        // // PERMET DE FIXER LES NOEUDS
-        // for (var i =0; i< nodes_position.length; i++){
-        //   nodes_position[i].id= nodes_position[i].index;
-        //   nodes_position[i].X = nodes_position[i].x;
-        //   nodes_position[i].Y = nodes_position[i].y;
-        //   delete nodes_position[i].index;
-        //   delete nodes_position[i].x;
-        //   delete nodes_position[i].y;
-        //   delete nodes_position[i].px;
-        //   delete nodes_position[i].py;
-        //   delete nodes_position[i].fixed;
-        //   delete nodes_position[i].weight;
-        // }
-        // for (var i =0; i< links_position.length; i++){
-        //
-        //   links_position[i].source = links_position[i].source.id;
-        //   links_position[i].target = links_position[i].target.id;
-        //   console.log(links_position[i]);
-        // }
-        // console.log(data.nodes)
-        // console.log(JSON.stringify(nodes_position))
-        // $.ajax({
-        //     url: "/create_json_file",
-        //     type: "POST",
-        //     dataType: "json",
-        //     data: {"nodes" :JSON.stringify(nodes_position), "links": JSON.stringify(links_position), "path" : data_path},
-        //     success: function (data) {console.log("RESULT", data); },
-        //     error: function (xhr, status, error) {console.log('Error: ' + error.message);},
-        // });
+      //   //console.log(nodes_position)
+      //   //console.log("NOOOODES", links_position)
+      //   graphD3 = new d3_graph(nodes_position, links_position, 900);
 
 
-        //console.log("HEYY")
-      }, 0);
+      //   // // PERMET DE FIXER LES NOEUDS
+      //   for (var i =0; i< nodes_position.length; i++){
+      //     nodes_position[i].id= nodes_position[i].index;
+      //     nodes_position[i].X = nodes_position[i].x;
+      //     nodes_position[i].Y = nodes_position[i].y;
+      //     delete nodes_position[i].index;
+      //     delete nodes_position[i].x;
+      //     delete nodes_position[i].y;
+      //     delete nodes_position[i].px;
+      //     delete nodes_position[i].py;
+      //     delete nodes_position[i].fixed;
+      //     delete nodes_position[i].weight;
+      //   }
+      //   for (var i =0; i< links_position.length; i++){
+        
+      //     links_position[i].source = links_position[i].source.id;
+      //     links_position[i].target = links_position[i].target.id;
+      //     console.log(links_position[i]);
+      //   }
+      //   console.log(data.nodes)
+      //   console.log(JSON.stringify(nodes_position))
+      //   $.ajax({
+      //       url: "/create_json_file",
+      //       type: "POST",
+      //       dataType: "json",
+      //       data: {"nodes" :JSON.stringify(nodes_position), "links": JSON.stringify(links_position), "path" : data_path},
+      //       success: function (data) {console.log("RESULT", data); },
+      //       error: function (xhr, status, error) {console.log('Error: ' + error.message);},
+      //   });
+
+
+      //   //console.log("HEYY")
+      // }, 20000);
 
 
 
@@ -202,7 +202,7 @@ $.get( '/data/'+data_path, function(data) {
         //console.log(edges_infos);
       }
       else{
-       send_data({"links": graphD3.edge_array, "nodes": graphD3.node_array});
+       send_data(JSON.parse(JSON.stringify({"links": graphD3.edge_array, "nodes": graphD3.node_array})));
      }
 
 
