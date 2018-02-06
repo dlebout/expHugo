@@ -1,0 +1,21 @@
+
+<link rel="stylesheet" href="assets/css/instruction.css">
+<script src="lib/jquery.min.js"></script>
+
+<div class="practice">
+	<p>There is no more practice trials</p>
+	 <button id="submit" type="submit" class="flat_button2">Start next trial</button>
+	</form>
+</div>
+
+<script>
+// J'ajoute plus un a la redirection
+$( "#submit" ).click(function() {
+	var URL = window.location.href;
+	console.log("Store Data")
+	window.location = '/application/count_groups/5';
+
+});
+</script>
+
+<script>

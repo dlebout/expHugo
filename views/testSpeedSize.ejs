@@ -1,0 +1,71 @@
+
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+
+</head>
+  <body>
+    <div id=svg0></div>
+  </body>
+  <script src="lib/d3.v4.js"></script>
+  <script src="lib/jquery.min.js"></script>
+  <script src="class/Sparkiz.js"></script>
+
+	<script>
+
+var arrayMotion = [[1, [0.0], 1.2, 'black', 6, 'rectangle'], [1, [0.0], 1.2, 'black', 9, 'rectangle'], [1, [0.0], 1.2, 'black', 12, 'rectangle'], [1, [0.0], 1.2, 'black', 15, 'rectangle'], [1, [0.0], 1.2, 'black', 18, 'rectangle'], [1, [0.0], 1.2, 'black', 21, 'rectangle'], [1.9, [0.1], 1.2, 'black', 6, 'rectangle'], [1.9, [0.1], 1.2, 'black', 9, 'rectangle'], [1.9, [0.1], 1.2, 'black', 12, 'rectangle'], [1.9, [0.1], 1.2, 'black', 15, 'rectangle'], [1.9, [0.1], 1.2, 'black', 18, 'rectangle'], [1.9, [0.1], 1.2, 'black', 21, 'rectangle'], [3.61, [0.2], 1.2, 'black', 6, 'rectangle'], [3.61, [0.2], 1.2, 'black', 9, 'rectangle'], [3.61, [0.2], 1.2, 'black', 12, 'rectangle'], [3.61, [0.2], 1.2, 'black', 15, 'rectangle'], [3.61, [0.2], 1.2, 'black', 18, 'rectangle'], [3.61, [0.2], 1.2, 'black', 21, 'rectangle'], [6.86, [0.3], 1.2, 'black', 6, 'rectangle'], [6.86, [0.3], 1.2, 'black', 9, 'rectangle'], [6.86, [0.3], 1.2, 'black', 12, 'rectangle'], [6.86, [0.3], 1.2, 'black', 15, 'rectangle'], [6.86, [0.3], 1.2, 'black', 18, 'rectangle'], [6.86, [0.3], 1.2, 'black', 21, 'rectangle'], [13.034, [0.4], 1.2, 'black', 6, 'rectangle'], [13.034, [0.4], 1.2, 'black', 9, 'rectangle'], [13.034, [0.4], 1.2, 'black', 12, 'rectangle'], [13.034, [0.4], 1.2, 'black', 15, 'rectangle'], [13.034, [0.4], 1.2, 'black', 18, 'rectangle'], [13.034, [0.4], 1.2, 'black', 21, 'rectangle'], [24.8, [0.5], 1.2, 'black', 6, 'rectangle'], [24.8, [0.5], 1.2, 'black', 9, 'rectangle'], [24.8, [0.5], 1.2, 'black', 12, 'rectangle'], [24.8, [0.5], 1.2, 'black', 15, 'rectangle'], [24.8, [0.5], 1.2, 'black', 18, 'rectangle'], [24.8, [0.5], 1.2, 'black', 21, 'rectangle']]
+
+ graphData = {"directed": false, "graph": {},
+   "nodes": [],
+   "links": [],
+   "multigraph": false}
+
+   for (var i = 0; i < 6; i++) {
+     for (var j = 0; j < 6; j++) {
+       x = -800 + i*250 + i*150
+       y = -700 + 200*j
+       graphData.nodes.push({X:x, Y:y, name:i*6+j, id:i*6+j})
+       graphData.nodes.push({X:x+250, Y:y, name:i*6+j+36, id:i*6+j+36})
+       graphData.links.push({id:i*6+j, source:i*6+j, target:i*6+j+36 })
+     }
+   }
+
+   console.log(graphData);
+
+   app = flownet.force("#svg0", 2200 ,1600, "black",0)
+       .nodes(graphData.nodes)
+       .links(graphData.links)
+
+       .layout("linkDistance", 200)
+       .create_layout()
+       .tracks("count", 1 )
+
+       .create_WEBGL_element()
+
+       .link_properties("curvature", 100)
+       .link_properties("color", "#dddddd")
+       .link_properties("size", 3)
+
+       .node_properties("color", "#999797")
+       .node_properties("size", 7)
+
+       .controls(false)
+       .node_properties("x", function(d, i) {return d.X; })
+       .node_properties("y", function(d, i) {return - d.Y;  })
+
+       .particles("color", function(d, i) {return arrayMotion[i][3]; })
+       .particles("size", function(d, i) {return arrayMotion[i][4]; })
+       .particles("frequency", function(d, i) {return arrayMotion[i][2]; })
+       .particles("pattern", function(d, i) {return arrayMotion[i][1]; })
+       .particles("speed", function(d, i) {return arrayMotion[i][0]; })
+
+       .particles("texture", function(d, i) {return "images/"+ arrayMotion[i][5] +"_texture.png";})
+
+       .start_particle_delay(10000)
+       .start(0);
+
+	</script>
+
+
+
+</html>
