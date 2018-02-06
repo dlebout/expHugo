@@ -13,9 +13,9 @@ var http = require('http'),
 Expe = require("./model/expe.js")
 
 var id_utilisateur = 0;
-var visual_variable = "CrossingSpeedFrequency";
+var motion_variable = "CrossingSpeedFrequency";
 var expe;
-
+var endofPractice = false
 
 
 var temporary_counting_groups = {"time":null, "number_of_groups":0 };
@@ -34,6 +34,7 @@ app.use(express.static(__dirname));
 app.use('/application', express.static(__dirname));
 app.use('/application/rest', express.static(__dirname));
 app.use('/application/count_groups', express.static(__dirname));
+app.use('/application/instruction', express.static(__dirname));
 
 app.use(bodyParser.urlencoded({
   extended: true,
@@ -71,14 +72,21 @@ app.post('/send_form', function (req, res) {
   user_id = req.body.user_id;
   age = req.body.age;
   gender = req.body.gender;
-  visual_variable = req.body.visual_variable;
-  static_variable = req.body.static_variable;
+  //motion_variable = req.body.motion_variable;
 
-  console.log(user_id, name, hand, date, age, gender, visual_variable, static_variable )
+  speedCheck = req.body.speedCheck === undefined? false : true;
+  temporalCheck = req.body.temporalCheck === undefined? false : true;
+  frequencyCheck = req.body.frequencyCheck === undefined? false : true;
+  crossCheck = req.body.crossCheck === undefined? false : true;
+
+  colorCheck = req.body.colorCheck === undefined? false : true;
+  sizeCheck = req.body.sizeCheck === undefined? false : true;
+  shapeCheck = req.body.shapeCheck === undefined? false : true;
+
+  console.log(user_id, name, hand, date, age, gender, colorCheck, sizeCheck, shapeCheck )
   log_users(user_id, name, hand, date, age, gender)
   res.statusCode = 302;
   res.setHeader("Location", "/read_csv");
-  res.send('toast')
   res.end();
 });
 
@@ -94,34 +102,57 @@ app.get('/data/:id_data', function (req, res) {
         }
     });
 });
+
+app.get('/application/instruction', function (req, res) {
+  checkedVariable = []
+  if (speedCheck && expe.mainMotion !== "speed") checkedVariable.push('(Speed and Frequency mix)')
+  if (temporalCheck && expe.mainMotion !== "temporal") checkedVariable.push('pattern')
+  if (frequencyCheck && expe.mainMotion !== "frequency") checkedVariable.push('frequency')
+  if (crossCheck && expe.mainMotion !== "cross") checkedVariable.push('speed')
+  if (colorCheck && expe.mainMotion !== "color") checkedVariable.push('color')
+  if (sizeCheck && expe.mainMotion !== "size") checkedVariable.push('size')
+  if (shapeCheck && expe.mainMotion !== "shape") checkedVariable.push('shape')
+  res.render('instruction', { mainMotion: expe.mainMotion, variables: checkedVariable  });
+});
+
 /********* PERMET DE LIRE LE CSV ***********************/
 app.get('/read_csv', function (req, res) {
     var reader = csv.createCsvFileReader("./followup/particles-followup.csv", { separator : ',', columnsFromHeader: true  });
-    if ( !reader ) { console.log('no csv file for ' + visual_variable); return}
+    if ( !reader ) { console.log('no csv file for ' + motion_variable); return}
     var array = []
 
     reader.addListener('data', function(data) {
-      console.log("dtatatattat",data);
        array.push(data)
     });
     reader.on('end', function() {
+      endofPractice = false
         array = return_by_id(array);
         expe = new Expe(array);
-
-        staticVariables = Object.keys(array[0])
-        staticVariables.splice(0,7)
-        create_db_expe(staticVariables);
+        create_db_expe();
         res.statusCode = 302;
-        res.setHeader("Location", "/application/count_groups/0");
+        //res.setHeader("Location", "/application/count_groups/0");
+        res.setHeader("Location", "/application/instruction")
         res.end();
     });
 });
 
 /********* PERMET DE LIRE LE CSV ***********************/
 app.get('/createLayout', function (req, res) {
-    
   res.render('generateNetwork', {});
+});
 
+app.get('/testSpeedSize', function (req, res) {
+  res.render('testSpeedSize', {});
+});
+app.get('/testFrequencySize', function (req, res) {
+  res.render('testFrequencySize', {});
+});
+app.get('/testTemporalSize', function (req, res) {
+  res.render('testTemporalSize', {});
+});
+
+app.get('/testD3', function (req, res) {
+  res.render('testD3', {});
 });
 
 // SERT A ME CREER LE JSON POUR FIXER MES NOEUDS
@@ -151,9 +182,9 @@ app.post('/store_data', function (req, res) {
   var temps_ecoule = (end - start) / 1000;
   temps_ecoule -= 1;
   console.log("TEMPS ECOULE", end - start);
-  console.log("Visual Variable", expe.visual_variable)
   var task_number = req.headers.referer.split('/')[4];
-  add_to_table(req.body, temporary_counting_groups.time, temps_ecoule)
+  console.log(task_number);
+  //add_to_table(req.body, temporary_counting_groups.time, temps_ecoule)
 
   //-1 CAR C'EST MON DERNIER TRUC QUE JE FAIS
   if (task_number  >= expe.max_id_expe - 1){
@@ -166,18 +197,23 @@ app.post('/store_data', function (req, res) {
 /**************** STORING DATA FOR THE COUNTING GROUPS ************************/
 app.post('/store_data_counting_group', function (req, res) {
   end = Date.now();
+  console.log(end);
   var temps_ecoule = (end - start) / 1000;
   temps_ecoule -= 1;
   var task_number = req.body.redirection;
-  temporary_counting_groups.time = temps_ecoule;
-  temporary_counting_groups.number_of_groups = req.body.number_of_groups;
+  console.log("task", task_number);
+  add_to_table(req.body, temps_ecoule)
 
-  if (task_number  >=expe.max_id_expe ){
+  if (task_number  >= expe.max_id_expe - 1){
     res.end(JSON.stringify({status:"OK", redirection:"../../../application/finish"}));
   }
-  else{
-    res.end(JSON.stringify({status:"OK", redirection:"../../../application/"+task_number}));
+  else if (task_number  == 4 && endofPractice === false){
+    endofPractice = true
+    res.end(JSON.stringify({status:"OK", redirection:"../../../application/practice"}));
+  }else{
+    res.end(JSON.stringify({status:"OK", redirection:"../../../application/rest/"+task_number}));
   }
+
 });
 
 app.get('/application/rest/:new_task', function (req, res) {
@@ -186,15 +222,16 @@ app.get('/application/rest/:new_task', function (req, res) {
 app.get('/application/finish', function (req, res) {
   res.render('finish');
 });
+app.get('/application/practice', function (req, res) {
+  res.render('practice');
+});
 
 /************** APPLICATION COUNTING GROUPS *****************/
 app.get('/application/count_groups/:id_map', function (req, res) {
   start = Date.now();
   var id = parseInt(req.params.id_map);
-  //console.log(expe)
   expe.set_new_state(id);
-  console.log('static_variables',expe.static_variables);
-  res.render('count_groups', { id_user :id_utilisateur, header: expe.header, description: expe.description , data : expe.dataSet, trial: id+1, max_trial:expe.max_id_expe, visualVariable:expe.visual_variable });
+  res.render('count_groups', { id_user :id_utilisateur, header: expe.header, description: expe.description , data : expe.dataSet, edge: expe.edge, edgeOption: expe.edgeOption, trial: id+1, max_trial:expe.max_id_expe, visualVariable:expe.motion_variable });
 });
 /************** APPLICATION CLASYFYING GROUPS *****************/
 app.get('/application/:id_map', function (req, res) {
@@ -209,7 +246,7 @@ app.get('/application/:id_map', function (req, res) {
   }
   else{
     res.statusCode = 302;
-    res.render('index', { id_user :id_utilisateur, header: expe.header, description: expe.description , data : expe.dataSet, trial: id+1, max_trial:expe.max_id_expe, visualVariable:expe.visual_variable });
+    res.render('index', { id_user :id_utilisateur, header: expe.header, description: expe.description , data : expe.dataSet, edge: expe.edge, trial: id+1, max_trial:expe.max_id_expe, visualVariable:expe.motion_variable });
     res.end();
   }
 });
@@ -261,7 +298,16 @@ function create_db_expe(staticVariables){
   //SI LE FICHIER N"EXISTE PAS JE LE CREE
   // if (!fs.existsSync('db/database_user_'+id_utilisateur+'.csv')) {
   //   console.log("CREATE FILE");
-  db_expe = csv.createCsvStreamWriter(fs.createWriteStream('db/database_user_'+id_utilisateur+'_'+date+'.csv'), { separator : ';' });
+  var fileNameOption = ""
+  if ( speedCheck ) fileNameOption += "_speed"
+  if ( temporalCheck ) fileNameOption += "_temporal"
+  if ( frequencyCheck ) fileNameOption += "_frequency"
+  if ( crossCheck ) fileNameOption += "_cross"
+  if ( colorCheck ) fileNameOption += "_color"
+  if ( sizeCheck ) fileNameOption += "_size"
+  if ( shapeCheck ) fileNameOption += "_shape"
+
+  db_expe = csv.createCsvStreamWriter(fs.createWriteStream('db/database_user_'+id_utilisateur+'_'+date+fileNameOption+'.csv'), { separator : ';' });
     //db_expe.writeRecord(['user_id', 'task_name' , 'trial', 'id_link', 'value', 'temporal_distribution', 'speed', 'frequency_pattern']);
     //, { separator : ';' }
     // 1 - id de l'utilisateur
@@ -274,10 +320,13 @@ function create_db_expe(staticVariables){
     // 8 - Temps 1 ere expe
     // 9 - Temps 2 eme expe
 
-  header = ['USER_ID',"BLOCK", "TRIAL", "GROUP_COUNT","GRAPH_SIZE", "VISUAL_VARIABLE","NUMBER_OF_GROUPS","NUMBER_OF_NODES","NUMBER_OF_EDGES",
-    'MISLABELED_EDGES','NUMBER_MISLABELED_EDGES','NUMBER_GROUPS_FOUND_FIRST_STEP','NUMBER_GROUPS_FOUND_SECOND_STEP',"HIT_FIRST_STEP","HIT_SECOND_STEP", "PERCENT_EDGES_WRONG_PLACEMENT",
-    "TIME_COUNTING_GROUPS","TIME_CLASSIFYING_GROUPS","DATABASE_GROUP","USER_GROUP","SIMILARITY_ARRAY","G1","G2","G3","G4","G5","G6","BRUT_DATA"]
-  header.splice(6, 0, ...staticVariables);
+  header = ['USER_ID',"practice","BLOCK", "TRIAL","GRAPH_SIZE","mainMotion","speed",	"frequency",	"temporal",
+  	"cross",	"speedMapping",	"frequencyMapping",	"temporalMapping"	,"crossMapping"	,"color"
+    ,"colorMapping",	"size"	,"sizeMapping",	"shape",	"shapeMapping"	,"edgeDistance"
+    ,"NUMBER_OF_NODES","NUMBER_OF_EDGES", "completion_time",	"edgeA_speed",	"edgeA_frequency",	"edgeA_temporal",
+    "edgeA_color",	"edgeA_size",	"edgeA_shape",	"edgeB_speed",	"edgeB_frequency",	"edgeB_temporal",
+    "edgeB_color",	"edgeB_size",	"edgeB_shape",	"edgeB_original_speed",	"edgeB_original_frequency",	"edgeB_original_temporal",
+    "difference_speed", "difference_frequency"]
 
   console.log('Found file');
   db_expe.writeRecord(header);
@@ -288,18 +337,18 @@ function create_db_expe(staticVariables){
   // }
 }
 
-function add_to_table(value,  time_counting_groups, time_classifying_groups){
+function add_to_table(value,  time){
   if (id_utilisateur == null){console.log("id_utilisateur est null ...."); }
 
   //Transform to array
-  var array = JSON.stringify(value);
-  console.log(array);
+  //var array = JSON.stringify(value);
+  //console.log(array);
 
 
-  var model = get_number_groups(value.links);
+  //var model = get_number_groups(value.links);
   //console.log("DATABASE_GROUP", model);
 
-  var user_groups = get_users_group(value.links);
+  //var user_groups = get_users_group(value.links);
   //console.log("USER", user_groups);
 
 
@@ -312,26 +361,25 @@ function add_to_table(value,  time_counting_groups, time_classifying_groups){
 
   // REORDER THE ARRAY TO HAVE ALWAYS THE SAME ORDER
   // FOR EVERY visualVariable
-  model = model.sort(function(a, b) {
+  /*model = model.sort(function(a, b) {
     return parseFloat(a.pattern) - parseFloat(b.pattern);
   });
+*/
 
-
-
+/*
   console.log("DATABASE_GROUP\n", model);
   console.log("USER\n", user_groups);
   // console.log(value)
 
-
   // PERMET DE MESURER L'ERREUR
   var rate = rate_error(model, user_groups);
   console.log("SIMILARITY ARRAY\n", rate.array_of_symilarity)
-  //console.log(  expe.block,expe.trial,expe.group_count,expe.graph_size,expe.visual_variable)
+  //console.log(  expe.block,expe.trial,expe.group_count,expe.graph_size,expe.motion_variable)
   //{"edge_wrong_placement":data, "number_groups_found": user_groups.length, "total_group": models.length, "isWinning":iswinning }
 
   //CALCUL LE MAX DE CHAQUE LIGNE DE LA MATRICE DE SIMILARITE
   //Special pour Temporal car la distribution change
-  if (expe.visual_variable == "TemporalDistribution"){
+  if (expe.motion_variable == "TemporalDistribution"){
     if (expe.group_count == "Small"){
       var G2 = Math.max.apply(Math, rate.array_of_symilarity[0]);
       var G6 = Math.max.apply(Math, rate.array_of_symilarity[1]);
@@ -367,11 +415,20 @@ function add_to_table(value,  time_counting_groups, time_classifying_groups){
 
   //Calcul le pourcentage pour que ca marche
   var percent_wrong_edges = rate.edge_wrong_placement.length / value.links.length;
+*/
 
-  res= [id_utilisateur,expe.block,expe.trial,expe.group_count,expe.graph_size,expe.visual_variable, model.length, value.nodes.length, value.links.length,
-    rate.edge_wrong_placement, rate.edge_wrong_placement.length, temporary_counting_groups.number_of_groups, rate.number_groups_found, isWinning_FIRST_STEP ,rate.isWinning ,
-    percent_wrong_edges, time_counting_groups, time_classifying_groups, JSON.stringify(model), JSON.stringify(user_groups), JSON.stringify(rate.array_of_symilarity), G1,G2,G3,G4,G5,G6, array ]
-  res.splice(6, 0, ...expe.static_variables);
+  graphA = JSON.parse(value.graphA);
+  graphB = JSON.parse(value.graphB);
+  graphBClean = JSON.parse(value.graphBClean);
+
+  res= [id_utilisateur,expe.practice,expe.block,expe.trial, expe.graph_size+"_"+expe.template,expe.mainMotion, expe.speed, expe.frequency, expe.temporal, expe.cross,
+        expe.speedMapping, expe.frequencyMapping, expe.temporalMapping, expe.crossMapping, expe.color, expe.colorMapping, expe.size, expe.sizeMapping,
+        expe.shape, expe.shapeMapping, expe.edgeDistance, value.nb_nodes, value.nb_links, time,
+        graphA.speed, graphA.frequency, graphA.temporal, graphA.color, graphA.size, graphA.shape,
+        graphB.speed, graphB.frequency, graphB.temporal, graphB.color, graphB.size, graphB.shape,
+        graphBClean.speed, graphBClean.frequency, graphBClean.temporal,
+        graphB.speed-graphA.speed, graphB.frequency-graphA.frequency
+      ]
 
   db_expe.writeRecord(res);
 
@@ -482,10 +539,10 @@ function get_number_groups(array){
   //Transform array in string
   var tab = [];
   for (var i=0; i<array.length; i++){
-    if (expe.visual_variable == "TemporalDistribution") tab.push(array[i].temporal.toString())
-    if (expe.visual_variable == "Speed") tab.push(array[i].speedParticule.toString())
-    if (expe.visual_variable == "PatternFrequency") tab.push(array[i].frequencyParticule.toString())
-    if (expe.visual_variable == "CrossingSpeedFrequency") tab.push(array[i].speedParticule.toString())
+    if (expe.motion_variable == "TemporalDistribution") tab.push(array[i].temporal.toString())
+    if (expe.motion_variable == "Speed") tab.push(array[i].speedParticule.toString())
+    if (expe.motion_variable == "PatternFrequency") tab.push(array[i].frequencyParticule.toString())
+    if (expe.motion_variable == "CrossingSpeedFrequency") tab.push(array[i].speedParticule.toString())
   }
   //console.log(tab)
 
@@ -559,22 +616,30 @@ function add_user_to_infos(id, name, hand, date, age, gender){
 function return_by_id(array){
   var tab = [];
     for (var i=0; i<array.length; i++){
-      //A CHANGER POUR AVOIR LE BON UTILISATEUR
-      //if (parseInt(array[i].participant_id) == 0){
-      if (parseInt(array[i].participant_id) == id_utilisateur && array[i].visualVariable == visual_variable ){
-        line = Object.keys(array[i]).map(key => array[i][key])
-        insert = true
-        for (var j = 7 ;j < line.length; j+=3) {
-          if ( (line[j] === static_variable && line[j+1] === '1') || (line[j] !== static_variable && line[j+1] !== '1') ) insert = false
+      console.log(parseInt(array[i].participant_id) , id_utilisateur)
+      if (parseInt(array[i].participant_id) == id_utilisateur && id_utilisateur == -1){
+        tab.push(array[i])
+      }else{
+          if (parseInt(array[i].participant_id) == id_utilisateur
+          && ( (speedCheck && array[i].speed !== 'Null') || (!speedCheck && array[i].speed === 'Null') )
+          && ( (temporalCheck && array[i].temporal !== 'Null') || (!temporalCheck && array[i].temporal === 'Null') )
+          && ( (crossCheck && array[i].cross !== 'Null') || (!crossCheck && array[i].cross === 'Null') )
+          && ( (frequencyCheck && array[i].frequency !== 'Null') || (!frequencyCheck && array[i].frequency === 'Null') ) ){
+          line = Object.keys(array[i]).map(key => array[i][key])
+          insert = true
+          if ( ((colorCheck && array[i].color === '1') || (!colorCheck && array[i].color !== '1'))
+            ||  ((sizeCheck && array[i].size === '1') || (!sizeCheck && array[i].size !== '1'))
+            ||  ((shapeCheck && array[i].shape === '1') || (!shapeCheck && array[i].shape !== '1')) ) insert = false
+          if ( insert  ){
+            tab.push(array[i])
+          }
         }
-        if ( insert  ){
-          tab.push(array[i])
-        }
-
       }
     }
+    console.log(tab);
     return tab;
 }
+
 function intersect_array(a, b){
   var ai=0, bi=0;
   var result = [];

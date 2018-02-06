@@ -10,22 +10,64 @@
 
       .vis{
             /*margin-right: 5px;*/
-            display: inline-block;
-            vertical-align: top;
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
             /*border-width:1px;
             border-style:solid;
             border-color:black*/
             /*width: 40%;*/
         }
+      .visOverlay{
+              /*margin-right: 5px;*/
+              width: 100%;
+              height: 100%;
+              position: absolute;
+              top: 0;
+              left: 0;
+              /*border-width:1px;
+              border-style:solid;
+              border-color:black*/
+              /*width: 40%;*/
+        }
 				.number_groups{
 					position:absolute;
-					width: 600px;
-					top:405px;
-					left:1050px;
-          color: #999797;
+					top:605px;
+					left:1800px;
 				}
+        .span{
+          font-family:arial;
+          font-size: 20px
+        }
+
+        .motion_button:focus {outline:0;}
+        .motion_button{
+          background-color: #e6f9ff;
+          width: 100px;
+          height: 30px;
+          /*line-height: 100px;*/
+          /*margin: auto;*/
+          margin-left: 30px;
+          color: "black";
+          cursor: pointer;
+          overflow: hidden;
+          border-radius: 10px;
+          font-size:15px;
+          box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.3);
+          text-decoration: none;
+          border: none;
+          -webkit-font-smoothing: antialiased;
+        }
+
         #number_trial{
           color: #999797;
+          position: absolute;
+        }
+        #next_trial{
+          top:905px;
+					left:2000px;
           position: absolute;
         }
         #count_down{
@@ -58,16 +100,22 @@
     </div>
       <div class="clear"></div>
   	  <div class="vis" id="visFrame"></div>
-
+      <div class="visOverlay" id="visFrameOverlay"></div>
+      <div class="visOverlay" id="visFrameOverlay2"></div>
+      <div class="visOverlay" id="visFrameOverlay3">
+        <svg id=markerOverlay width=100% height=100%  style="background:transparent"></svg>
+      </div>
 			<div class="vertical-line" style="height: 1200px;"></div>
 
       <div class="clear"></div>
 			<div class="number_groups">
-				<span> Report the number of different <span style="text-transform: lowercase;"><%- header %></span> that you can find in 45 seconds :</span>
-	  		<input id="number_groups" type="text" name="number_groups" placeholder="Number Groups"><br/>
+				<span class="span"> The X of edge A can be superior/inferior or equal to the X of edge B.</span><br/>
+        <span class="span"> If needed adjust the X of edge B to match the X of edge A.</span><br/><br/><br/><br/>
+        <span class="span"> B's motion: </span>
+        <button id="decreaseMotion" class="motion_button"> Decrease </button>
+        <button id="increaseMotion" class="motion_button"> Increase </button><br/>
 			</div>
-			<button type="submit" class="flat_button" id="next_trial" style='	top: 500px;left: 1200px;'> Ok </button>
-
+      <button type="submit" class="flat_button" id="next_trial"> Ok </button><br/>
 
 
 
@@ -90,70 +138,228 @@
   <link rel="stylesheet" type="text/css" href="lib/popup.css">
 	<script>
 
-
+var keyPressed = 0
+var extractedLinks;
+var sourceNode,targetNode;
 var trial = String(<%= trial %>);
+var edgeOption = <%- JSON.stringify(edgeOption) %>;
    //d3.json("data/data_expe.json", function(json) {
 var data_path = <%- JSON.stringify(data) %>;
+var edge_path = <%- JSON.stringify(edge) %>;
+var edgesExp;
+var nodesEdgeA = []
+var edgeA
+var nodesEdgeB = []
+var edgeB
+var graphA = {}
+var graphB = {}
+var graphAClean = {}
+var graphBClean = {}
+var dataRaw
 var app;
-console.log(data_path)
-$.get( '/data/'+data_path, function(data) {
+var app2;
+var app3;
+var speed,freq,tempo;
+var pressSpaceBar = false
 
-  // app = Sparkiz.force("#visFrame", 950 ,900, "black")
-  app = flownet.force("#visFrame", 950 ,900, "black",0)
-      .nodes(data.nodes)
-      .links(data.links)
+getEdges()
+//showGraph()
 
-      .layout("linkDistance", 200)
-      .create_layout()
-      .tracks("count", 1 )
+function showGraph(){
+  clearAllCanvas()
+  createGraph()
+  createLinkReference()
+  createLinkModular()
+}
 
-      .create_WEBGL_element()
+function clearAllCanvas(){
+     /* for( var i = app.sparkiz.scene.children.length - 1; i >= 0; i--) {
+      obj = app.sparkiz.scene.children[i];
+      if (obj.name == "links") app.sparkiz.scene.remove(obj);
+      if (obj.name == "roads") app.sparkiz.scene.remove(obj);
+      if (obj.name.slice(0, 4) ==  "tube") app.sparkiz.scene.remove(obj);
+      if (obj.name.slice(0, 15) == "particle_system") app.sparkiz.scene.remove(obj);
+      if (obj.name == "circle") app.sparkiz.scene.remove(obj);
+      if (obj.name == "label") app.sparkiz.scene.remove(obj);
+    }
+    app.sparkiz.links = []
+    app.sparkiz.tube = []
+    app = null*/
+    for( var i = app3.sparkiz.scene.children.length - 1; i >= 0; i--) {
+      obj = app3.sparkiz.scene.children[i];
+      if (obj.name == "links") app3.sparkiz.scene.remove(obj);
+      if (obj.name == "roads") app3.sparkiz.scene.remove(obj);
+      if (obj.name.slice(0, 4) ==  "tube") app3.sparkiz.scene.remove(obj);
+      if (obj.name.slice(0, 15) == "particle_system") app3.sparkiz.scene.remove(obj);
+      if (obj.name == "circle") app3.sparkiz.scene.remove(obj);
+      if (obj.name == "label") app3.sparkiz.scene.remove(obj);
+    }
+    app3.sparkiz.links = []
+    app3.sparkiz.tube = []
+    app3 = null
+    for( var i = app2.sparkiz.scene.children.length - 1; i >= 0; i--) {
+      obj = app2.sparkiz.scene.children[i];
+      if (obj.name == "links") app2.sparkiz.scene.remove(obj);
+      if (obj.name == "roads") app2.sparkiz.scene.remove(obj);
+      if (obj.name.slice(0, 4) ==  "tube") app2.sparkiz.scene.remove(obj);
+      if (obj.name.slice(0, 15) == "particle_system") app2.sparkiz.scene.remove(obj);
+      if (obj.name == "circle") app2.sparkiz.scene.remove(obj);
+      if (obj.name == "label") app2.sparkiz.scene.remove(obj);
+    }
+    app2.sparkiz.links = []
+    app2.sparkiz.tube = []
+    app2 = null
+    d3.select('#visFrameOverlay').selectAll('*').remove()
+    d3.select('#visFrameOverlay2').selectAll('*').remove()
+    //d3.select('#visFrameOverlay3').selectAll('*').remove()
+}
 
-      .link_properties("curvature", 5)
-      .link_properties("color", "#b5b5b5")
-      .link_properties("size", 3)
+
+function getEdges(){
+
+  $.get( '/data/'+edge_path, function(dataEdge) {
+    edgesExp = dataEdge[edgeOption[0]][edgeOption[1]][edgeOption[2]][edgeOption[3]][edgeOption[4]][edgeOption[5]][edgeOption[6]]
+    loadGraph()
+  });
+}
+
+function loadGraph(){
+  $.get( '/data/'+data_path, function(data) {
+    graphA = JSON.parse(JSON.stringify(data));
+    graphB = JSON.parse(JSON.stringify(data));
+    dataRaw = data
+    var index1,index2;
+
+    for (var i = graphA.links.length-1; i >= 0; i--) {
+      if ( graphA.links[i].id !== Number(edgesExp.edge1.id) ){
+        graphA.links.splice(i,1)
+      }else{
+        index1 = i
+      }
+    }
+    for (var i = graphA.nodes.length-1; i >= 0; i--) {
+      if ( graphA.nodes[i].id !== Number(edgesExp.edge1.source) && graphA.nodes[i].id !== Number(edgesExp.edge1.target)  ){
+        graphA.nodes.splice(i,1)
+      }
+    }
+    data.links.splice(index1,1)
+    graphA.links[0] = edgesExp.edge1
+
+    for (var i = graphB.links.length-1; i >= 0; i--) {
+      if ( graphB.links[i].id !== Number(edgesExp.edge2.id) ){
+        graphB.links.splice(i,1)
+      }else{
+        index2 = i
+      }
+    }
+    for (var i = graphB.nodes.length-1; i >= 0; i--) {
+      if ( graphB.nodes[i].id !== Number(edgesExp.edge2.source) && graphB.nodes[i].id !== Number(edgesExp.edge2.target)  ){
+        graphB.nodes.splice(i,1)
+      }
+    }
+    data.links.splice(index2,1)
+    graphB.links[0] = edgesExp.edge2
+
+    graphAClean = JSON.parse(JSON.stringify(graphA));
+    graphBClean = JSON.parse(JSON.stringify(graphB));
+
+    //createGraphEmpty()
+    createLinkReferenceEmpty()
+    createLinkModularEmpty()
+
+  })
+}
+
+function createGraphEmpty(){
+    app = flownet.force("#visFrame", 1750 ,1250, "black",0)
+        .nodes(dataRaw.nodes)
+        .links(dataRaw.links)
+
+        .layout("linkDistance", 200)
+        .create_layout()
+        .tracks("count", 1 )
+
+        .create_WEBGL_element()
+
+        .link_properties("curvature", 20)
+        .link_properties("color", function(d, i) {
+          if ( d.color === "#00ffff" || d.color === "#00ff00" || d.color === "#ffff00" ) return "#666666";
+          return "#dddddd"
+        })
+        .link_properties("size", 3)
 
 
-      .node_properties("color", "#999797")
-      .node_properties("size", 7)
-      //.nodes_mapping("label", function(d, i) {return d.id; })
+        .node_properties("color", "#999797")
+        .node_properties("size", 7)
+        //.nodes_mapping("label", function(d, i) {return d.id; })
+        .particles("color", 'none')
+        .particles("size", 0)
+        .particles("frequency", 1)
+        .particles("pattern", [0])
+        .particles("speed", 1)
+        // .roads_mapping("opacity", 0)
+        // .roads_mapping("color", "#66c2a5")
 
-      // .roads_mapping("opacity", 0)
-      // .roads_mapping("color", "#66c2a5")
+        .controls(false)
+        .node_properties("x", function(d, i) {return d.X; })
+        .node_properties("y", function(d, i) {return - d.Y;  })
+        // // .nodes_mapping("x", function(d, i) {console.log("D VALUE", d); return d.px; })
+        // .nodes_mapping("y", function(d, i) {return d.py;  })
+        // // .particle_mapping("color", function(d, i) {return color_scale(d.speed); })
 
-      .controls(false)
-      .node_properties("x", function(d, i) {return d.X; })
-      .node_properties("y", function(d, i) {return - d.Y;  })
-      // // .nodes_mapping("x", function(d, i) {console.log("D VALUE", d); return d.px; })
-      // .nodes_mapping("y", function(d, i) {return d.py;  })
-      // // .particle_mapping("color", function(d, i) {return color_scale(d.speed); })
-      .particles("color", function(d, i) {return d.color; })
-      .particles("size", function(d, i) {return d.sizeParticule; })
-      .particles("frequency", function(d, i) {return d.frequency; })
-      .particles("pattern", function(d, i) {return d.temporal; })
-      .particles("speed", function(d, i) {return d.speed; })
 
-      .particles("texture", function(d, i) {return "images/"+ d.shape +"_texture.png";})
-      .on("end", function() { launch_timer(); })
-      .start_particle_delay(10000)
-      .start(0);
-      // setTimeout(function(){
-      //     for (var k=0; k<app.sparkiz.links.length; k++){
-      //       var d = app.sparkiz.links[k];
-      //       var source = d.source;
-      //       var target = d.target;
-      //       var x1 = d.source.X;
-      //       var y1 = d.source.Y;
-      //       var x2 = d.target.X;
-      //       var y2 = d.target.Y;
-      //
-      //       var distance = Math.sqrt( (x1-x2)*(x1-x2) + (y1-y2)*(y1-y2) );
-      //
-      //       console.log(source.id,",", target.id, ",",distance)
-      //     }
-      //   }, 500);
+        .particles("texture", function(d, i) {return "images/"+ d.shape +"_texture.png";})
+        //.on("end", function() { launch_timer(); })
+        .start_particle_delay(10000)
+        .start(0);
+}
 
-   });
+function createGraph(){
+    app = flownet.force("#visFrame", 1750 ,1750, "black",0)
+        .nodes(dataRaw.nodes)
+        .links(dataRaw.links)
+
+        .layout("linkDistance", 200)
+        .create_layout()
+        .tracks("count", 1 )
+
+        .create_WEBGL_element()
+
+        .link_properties("curvature", 20)
+        .link_properties("color", function(d, i) {
+          if ( d.color === "#00ffff" || d.color === "#00ff00" || d.color === "#ffff00" ) return "#666666";
+          return "#dddddd"
+        })
+        .link_properties("size", 3)
+
+
+        .node_properties("color", "#999797")
+        .node_properties("size", 7)
+        .node_properties("label", function(d, i) { return d.id; })
+        .node_properties("label_size", 10)
+        .node_properties("label_color", 'black')
+        //.nodes_mapping("label", function(d, i) {return d.id; })
+
+        // .roads_mapping("opacity", 0)
+        // .roads_mapping("color", "#66c2a5")
+
+        .controls(false)
+        .node_properties("x", function(d, i) {return d.X; })
+        .node_properties("y", function(d, i) {return - d.Y;  })
+        // // .nodes_mapping("x", function(d, i) {console.log("D VALUE", d); return d.px; })
+        // .nodes_mapping("y", function(d, i) {return d.py;  })
+        // // .particle_mapping("color", function(d, i) {return color_scale(d.speed); })
+        .particles("color", function(d, i) {return d.color; })
+        .particles("size", function(d, i) {console.log(d.sizeParticule);return d.sizeParticule; })
+        .particles("frequency", function(d, i) {return d.frequency; })
+        .particles("pattern", function(d, i) {return d.temporal; })
+        .particles("speed", function(d, i) {return d.speed; })
+
+        .particles("texture", function(d, i) {return "images/"+ d.shape +"_texture.png";})
+        //.on("end", function() { launch_timer(); })
+        .start_particle_delay(10000)
+        .start(0);
+}
 
 
 
@@ -165,6 +371,336 @@ $.get( '/data/'+data_path, function(data) {
 		 send_data();
    });
 
+   function createLinkReferenceEmpty(){
+     app3 = flownet.force("#visFrameOverlay", 1750 ,1750, "black",0)
+         .nodes(graphA.nodes)
+         .links(graphA.links)
+
+         .layout("linkDistance", 200)
+         .create_layout()
+         .tracks("count", 1 )
+
+         .create_WEBGL_element()
+
+         .link_properties("curvature", 20)
+         .link_properties("color", "#dddddd")
+         .link_properties("size", 3)
+
+         .node_properties("color", "#999797")
+         .node_properties("size", 7)
+         .node_properties("label", function(d, i) { return d.id; })
+         .node_properties("label_size", 10)
+         .node_properties("label_color", 'black')
+         //.nodes_mapping("label", function(d, i) {return d.id; })
+         .controls(false)
+         .node_properties("x", function(d, i) {return d.X; })
+         .node_properties("y", function(d, i) {return - d.Y;  })
+         // // .nodes_mapping("x", function(d, i) {console.log("D VALUE", d); return d.px; })
+         // .nodes_mapping("y", function(d, i) {return d.py;  })
+         // // .particle_mapping("color", function(d, i) {return color_scale(d.speed); })
+         .particles("color", 'none')
+         .particles("size", 0)
+         .particles("frequency", 1)
+         .particles("pattern", [0])
+         .particles("speed", 1)
+
+
+         .start_particle_delay(10000)
+         .start(0);
+         // .roads_mapping("opacity", 0)
+         // .roads_mapping("color", "#66c2a5")
+
+
+         var adjustX = -10;
+         var adjustY = 8;
+         var angleRadians = Math.atan2(edgesExp.marker1Bis[1] - edgesExp.marker1[1], edgesExp.marker1Bis[0] - edgesExp.marker1[0]);
+         console.log(angleRadians);
+         if ( Math.abs(angleRadians) < (Math.PI/6) || Math.abs(angleRadians) > (Math.PI - Math.PI/6)) {
+           ( edgesExp.marker1[0] < edgesExp.marker1Bis[0] )? adjustX += -16 : adjustX += 16;
+         }
+         else if ( Math.abs(angleRadians) < (Math.PI/2 - Math.PI/6) || Math.abs(angleRadians) > (Math.PI/2 + Math.PI/6)) {
+           ( edgesExp.marker1[0] < edgesExp.marker1Bis[0] )? adjustX += -16 : adjustX += 16;
+           ( edgesExp.marker1[1] > edgesExp.marker1Bis[1] )? adjustY += 16 : adjustY += -16;
+         }
+         else {
+           ( edgesExp.marker1[1] > edgesExp.marker1Bis[1] )? adjustY += 16 : adjustY += -16;
+         }
+         console.log(adjustX);
+         d3.select("#markerOverlay").append('text')
+          .text("A")
+          .style('font', 'arial')
+          .style('font-size', '30px')
+          .style('font-weight', 'bold')
+          .attr('x', edgesExp.marker1[0]+875+adjustX)
+          .attr('y', edgesExp.marker1[1]+875+adjustY)
+        d3.select("#markerOverlay").append('line')
+          .attr('x1',  edgesExp.marker1[0]+875)
+          .attr('y1',  edgesExp.marker1[1]+875)
+          .attr('x2',  edgesExp.marker1Bis[0]+875)
+          .attr('y2',  edgesExp.marker1Bis[1]+875)
+          .attr('stroke', 'black')
+          .attr('stroke-width', 3)
+
+   }
+
+   function createLinkReference(){
+     app3 = flownet.force("#visFrameOverlay", 1750 ,1750, "black",0)
+         .nodes(graphA.nodes)
+         .links(graphA.links)
+
+         .layout("linkDistance", 200)
+         .create_layout()
+         .tracks("count", 1 )
+
+         .create_WEBGL_element()
+
+         .link_properties("curvature", 20)
+         .link_properties("color", "#dddddd")
+         .link_properties("size", 3)
+
+
+         .node_properties("color", "#999797")
+         .node_properties("size", 7)
+         .node_properties("label", function(d, i) { return d.id; })
+         .node_properties("label_size", 10)
+         .node_properties("label_color", 'black')
+         //.nodes_mapping("label", function(d, i) {return d.id; })
+
+         // .roads_mapping("opacity", 0)
+         // .roads_mapping("color", "#66c2a5")
+
+         .controls(false)
+         .node_properties("x", function(d, i) {return d.X; })
+         .node_properties("y", function(d, i) {return - d.Y;  })
+         // // .nodes_mapping("x", function(d, i) {console.log("D VALUE", d); return d.px; })
+         // .nodes_mapping("y", function(d, i) {return d.py;  })
+         // // .particle_mapping("color", function(d, i) {return color_scale(d.speed); })
+         .particles("color", function(d, i) {console.log(d.color);return d.color; })
+         .particles("size", function(d, i) {console.log(d.sizeParticule);return d.sizeParticule; })
+         .particles("frequency", function(d, i) {return d.frequency; })
+         .particles("pattern", function(d, i) {return d.temporal; })
+         .particles("speed", function(d, i) {return d.speed; })
+
+         .particles("texture", function(d, i) {return "images/"+ d.shape +"_texture.png";})
+         //.on("end", function() { launch_timer(); })
+         .start_particle_delay(10000)
+         .start(0);
+
+         var adjustX = -10;
+         var adjustY = 8;
+         var angleRadians = Math.atan2(edgesExp.marker1Bis[1] - edgesExp.marker1[1], edgesExp.marker1Bis[0] - edgesExp.marker1[0]);
+         console.log(angleRadians);
+         if ( Math.abs(angleRadians) < (Math.PI/6) || Math.abs(angleRadians) > (Math.PI - Math.PI/6)) {
+           ( edgesExp.marker1[0] < edgesExp.marker1Bis[0] )? adjustX += -16 : adjustX += 16;
+         }
+         else if ( Math.abs(angleRadians) < (Math.PI/2 - Math.PI/6) || Math.abs(angleRadians) > (Math.PI/2 + Math.PI/6)) {
+           ( edgesExp.marker1[0] < edgesExp.marker1Bis[0] )? adjustX += -16 : adjustX += 16;
+           ( edgesExp.marker1[1] > edgesExp.marker1Bis[1] )? adjustY += 16 : adjustY += -16;
+         }
+         else {
+           ( edgesExp.marker1[1] > edgesExp.marker1Bis[1] )? adjustY += 16 : adjustY += -16;
+         }
+         d3.select("#markerOverlay").append('text')
+          .text("A")
+          .style('font', 'arial')
+          .style('font-size', '30px')
+          .style('font-weight', 'bold')
+          .attr('x', edgesExp.marker1[0]+875+adjustX)
+          .attr('y', edgesExp.marker1[1]+875+adjustY)
+        d3.select("#markerOverlay").append('line')
+          .attr('x1',  edgesExp.marker1[0]+875)
+          .attr('y1',  edgesExp.marker1[1]+875)
+          .attr('x2',  edgesExp.marker1Bis[0]+875)
+          .attr('y2',  edgesExp.marker1Bis[1]+875)
+          .attr('stroke', 'black')
+          .attr('stroke-width', 3)
+
+        //intersection = [(graphA.nodes[1].X+graphA.nodes[0].X)/2,(graphA.nodes[1].Y+graphA.nodes[0].Y)/2]
+        /*d3.select("#markerOverlay").append('line')
+          .attr('stroke-width', 6)
+          .attr('stroke', 'black')
+         .attr('x1', JSON.parse(edgesExp.marker1)[0]+875)
+         .attr('y1', JSON.parse(edgesExp.marker1)[1]+875)
+         .attr('x2', intersection[0]+875)
+         .attr('y2', intersection[1]+875)*/
+   }
+
+   function createLinkModularEmpty(){
+
+     app2 = flownet.force("#visFrameOverlay2", 1750 ,1750, "black",0)
+         .nodes(graphB.nodes)
+         .links(graphB.links)
+
+         .layout("linkDistance", 200)
+         .create_layout()
+         .tracks("count", 1 )
+
+         .create_WEBGL_element()
+
+         .link_properties("curvature", 20)
+         .link_properties("color", "#dddddd")
+         .link_properties("size", 3)
+
+
+         .node_properties("color", "#999797")
+         .node_properties("size", 7)
+         .node_properties("label", function(d, i) { return d.id; })
+         .node_properties("label_size", 10)
+         .node_properties("label_color", 'black')
+         //.nodes_mapping("label", function(d, i) {return d.id; })
+         .particles("color", 'none')
+         .particles("size", 0)
+         .particles("frequency", 1)
+         .particles("pattern", [0])
+         .particles("speed", 1)
+         // .roads_mapping("opacity", 0)
+         // .roads_mapping("color", "#66c2a5")
+
+         .controls(false)
+         .node_properties("x", function(d, i) {return d.X; })
+         .node_properties("y", function(d, i) {return - d.Y;  })
+         // // .nodes_mapping("x", function(d, i) {console.log("D VALUE", d); return d.px; })
+         // .nodes_mapping("y", function(d, i) {return d.py;  })
+         // // .particle_mapping("color", function(d, i) {return color_scale(d.speed); })
+
+         .particles("texture", function(d, i) {return "images/"+ d.shape +"_texture.png";})
+         //.on("end", function() { launch_timer(); })
+         .start_particle_delay(10000)
+         .start(0);
+
+         var adjustX = -10;
+         var adjustY = 8;
+         var angleRadians = Math.atan2(edgesExp.marker2Bis[1] - edgesExp.marker2[1], edgesExp.marker2Bis[0] - edgesExp.marker2[0]);
+         console.log(angleRadians);
+         if ( Math.abs(angleRadians) < (Math.PI/6) || Math.abs(angleRadians) > (Math.PI - Math.PI/6)) {
+           ( edgesExp.marker2[0] < edgesExp.marker2Bis[0] )? adjustX += -16 : adjustX += 16;
+         }
+         else if ( Math.abs(angleRadians) < (Math.PI/2 - Math.PI/6) || Math.abs(angleRadians) > (Math.PI/2 + Math.PI/6)) {
+           ( edgesExp.marker2[0] < edgesExp.marker2Bis[0] )? adjustX += -16 : adjustX += 16;
+           ( edgesExp.marker2[1] > edgesExp.marker2Bis[1] )? adjustY += 16 : adjustY += -16;
+         }
+         else {
+           ( edgesExp.marker2[1] > edgesExp.marker2Bis[1] )? adjustY += 16 : adjustY += -16;
+         }
+         //if ( (Math.abs(edgesExp.marker1[1]-edgesExp.marker1Bis[1]) < 40) ){( edgesExp.marker1[0] < edgesExp.marker1Bis[0] )? adjustX += -16 : adjustX += 16;}
+         //if ( (Math.abs(edgesExp.marker1[0]-edgesExp.marker1Bis[0]) < 40) ){( edgesExp.marker1[1] > edgesExp.marker1Bis[1] )? adjustY += 16 : adjustY += -16;}
+         d3.select("#markerOverlay").append('text')
+          .text("B")
+          .style('font', 'arial')
+          .style('font-size', '30px')
+          .style('font-weight', 'bold')
+          .attr('x', edgesExp.marker2[0]+875+adjustX)
+          .attr('y', edgesExp.marker2[1]+875+adjustY)
+        d3.select("#markerOverlay").append('line')
+          .attr('x1',  edgesExp.marker2[0]+875)
+          .attr('y1',  edgesExp.marker2[1]+875)
+          .attr('x2',  edgesExp.marker2Bis[0]+875)
+          .attr('y2',  edgesExp.marker2Bis[1]+875)
+          .attr('stroke', 'black')
+          .attr('stroke-width', 3)
+
+   }
+
+   function createLinkModular(){
+
+     if ( keyPressed == 1){
+       var newSpeed = ((Math.max(graphB.links[0].speed,graphA.links[0].speed)-Math.min(graphB.links[0].speed,graphA.links[0].speed))/2)
+       if ( newSpeed > 2 ) newSpeed = 2
+       var newFreq = ((Math.max(graphB.links[0].frequency,graphA.links[0].frequency)-Math.min(graphB.links[0].frequency,graphA.links[0].frequency))/2)
+       if ( newSpeed > 2 ) newSpeed = 2
+       graphB.links[0].speed = graphB.links[0].speed + newSpeed
+       graphB.links[0].frequency = graphB.links[0].frequency + newFreq
+       //tempo = tempo + (Math.max(tempo,graphA.links[0].temporal)-Math.min(tempo,graphA.links[0].temporal))
+     }else if (keyPressed == -1){
+       var newSpeed = ((Math.max(graphB.links[0].speed,graphA.links[0].speed)-Math.min(graphB.links[0].speed,graphA.links[0].speed))/2)
+       if ( newSpeed > 2 ) newSpeed = 2
+       var newFreq = ((Math.max(graphB.links[0].frequency,graphA.links[0].frequency)-Math.min(graphB.links[0].frequency,graphA.links[0].frequency))/2)
+       if ( newSpeed > 2 ) newSpeed = 2
+       graphB.links[0].speed = graphB.links[0].speed - newSpeed
+       graphB.links[0].frequency = graphB.links[0].frequency - newFreq
+       //tempo = tempo - (Math.max(tempo,graphA.links[0].temporal)-Math.min(tempo,graphA.links[0].temporal))
+     }
+     if (graphB.links[0].speed < 0.5) graphB.links[0].speed = 0.5
+     if (graphB.links[0].frequency < 0.1) graphB.links[0].speed = 0.1
+     if (graphB.links[0].speed > 40) graphB.links[0].speed = 40
+     if (graphB.links[0].frequency > 15) graphB.links[0].speed = 15
+
+     console.log(graphB.links[0].frequency, graphA.links[0].frequency);
+
+     app2 = flownet.force("#visFrameOverlay2", 1750 ,1750, "black",0)
+         .nodes(graphB.nodes)
+         .links(graphB.links)
+
+         .layout("linkDistance", 200)
+         .create_layout()
+         .tracks("count", 1 )
+
+         .create_WEBGL_element()
+
+         .link_properties("curvature", 20)
+         .link_properties("color", "#dddddd")
+         .link_properties("size", 3)
+
+
+         .node_properties("color", "#999797")
+         .node_properties("size", 7)
+         .node_properties("label", function(d, i) { return d.id; })
+         .node_properties("label_size", 10)
+         .node_properties("label_color", 'black')
+         //.nodes_mapping("label", function(d, i) {return d.id; })
+
+         // .roads_mapping("opacity", 0)
+         // .roads_mapping("color", "#66c2a5")
+
+         .controls(false)
+         .node_properties("x", function(d, i) {return d.X; })
+         .node_properties("y", function(d, i) {return - d.Y;  })
+         // // .nodes_mapping("x", function(d, i) {console.log("D VALUE", d); return d.px; })
+         // .nodes_mapping("y", function(d, i) {return d.py;  })
+         // // .particle_mapping("color", function(d, i) {return color_scale(d.speed); })
+         .particles("color", function(d, i) {console.log(d.color,d.speed,d.frequency);return d.color; })
+         .particles("size", function(d, i) {return d.sizeParticule; })
+         .particles("frequency", function(d, i) {return d.frequency; })
+         .particles("pattern", function(d, i) {return d.temporal; })
+         .particles("speed", function(d, i) {return d.speed; })
+
+         .particles("texture", function(d, i) {return "images/"+ d.shape +"_texture.png";})
+         //.on("end", function() { launch_timer(); })
+         .start_particle_delay(10000)
+         .start(0);
+
+         var adjustX = -10;
+         var adjustY = 8;
+         var angleRadians = Math.atan2(edgesExp.marker2Bis[1] - edgesExp.marker2[1], edgesExp.marker2Bis[0] - edgesExp.marker2[0]);
+         console.log(angleRadians);
+         if ( Math.abs(angleRadians) < (Math.PI/6) || Math.abs(angleRadians) > (Math.PI - Math.PI/6)) {
+           ( edgesExp.marker2[0] < edgesExp.marker2Bis[0] )? adjustX += -16 : adjustX += 16;
+         }
+         else if ( Math.abs(angleRadians) < (Math.PI/2 - Math.PI/6) || Math.abs(angleRadians) > (Math.PI/2 + Math.PI/6)) {
+           ( edgesExp.marker2[0] < edgesExp.marker2Bis[0] )? adjustX += -16 : adjustX += 16;
+           ( edgesExp.marker2[1] > edgesExp.marker2Bis[1] )? adjustY += 16 : adjustY += -16;
+         }
+         else {
+           ( edgesExp.marker2[1] > edgesExp.marker2Bis[1] )? adjustY += 16 : adjustY += -16;
+         }
+         //if ( (Math.abs(edgesExp.marker1[1]-edgesExp.marker1Bis[1]) < 40) ){( edgesExp.marker1[0] < edgesExp.marker1Bis[0] )? adjustX += -16 : adjustX += 16;}
+         //if ( (Math.abs(edgesExp.marker1[0]-edgesExp.marker1Bis[0]) < 40) ){( edgesExp.marker1[1] > edgesExp.marker1Bis[1] )? adjustY += 16 : adjustY += -16;}
+         d3.select("#markerOverlay").append('text')
+          .text("B")
+          .style('font', 'arial')
+          .style('font-size', '30px')
+          .style('font-weight', 'bold')
+          .attr('x', edgesExp.marker2[0]+875+adjustX)
+          .attr('y', edgesExp.marker2[1]+875+adjustY)
+        d3.select("#markerOverlay").append('line')
+          .attr('x1',  edgesExp.marker2[0]+875)
+          .attr('y1',  edgesExp.marker2[1]+875)
+          .attr('x2',  edgesExp.marker2Bis[0]+875)
+          .attr('y2',  edgesExp.marker2Bis[1]+875)
+          .attr('stroke', 'black')
+          .attr('stroke-width', 3)
+
+   }
 
   var count = 46;
 
@@ -192,19 +728,19 @@ $.get( '/data/'+data_path, function(data) {
   }
   // Permet de supprimer le canvas
   function clearCanvas(){
-
-      for( var i = app.sparkiz.scene.children.length - 1; i >= 0; i--) {
-        obj = app.sparkiz.scene.children[i];
-        if (obj.name == "links") app.sparkiz.scene.remove(obj);
-        if (obj.name == "roads") app.sparkiz.scene.remove(obj);
-        if (obj.name.slice(0, 4) ==  "tube") app.sparkiz.scene.remove(obj);
-        if (obj.name.slice(0, 15) == "particle_system") app.sparkiz.scene.remove(obj);
-        if (obj.name == "circle") app.sparkiz.scene.remove(obj);
-        if (obj.name == "label") app.sparkiz.scene.remove(obj);
+      for( var i = app2.sparkiz.scene.children.length - 1; i >= 0; i--) {
+        obj = app2.sparkiz.scene.children[i];
+        if (obj.name == "links") app2.sparkiz.scene.remove(obj);
+        if (obj.name == "roads") app2.sparkiz.scene.remove(obj);
+        if (obj.name.slice(0, 4) ==  "tube") app2.sparkiz.scene.remove(obj);
+        if (obj.name.slice(0, 15) == "particle_system") app2.sparkiz.scene.remove(obj);
+        if (obj.name == "circle") app2.sparkiz.scene.remove(obj);
+        if (obj.name == "label") app2.sparkiz.scene.remove(obj);
       }
-      app.sparkiz.links = []
-      app.sparkiz.tube = []
-
+      app2.sparkiz.links = []
+      app2.sparkiz.tube = []
+      app2 = null
+      d3.select('#visFrameOverlay2').selectAll('*').remove()
   }
 
    function send_data(){
@@ -214,39 +750,80 @@ $.get( '/data/'+data_path, function(data) {
 			var URL = window.location.href;
 			var res = URL.split("/");
 			var next_app = parseInt(res[res.length-1]);
-
-			var number_groups = $('#number_groups').val();
-			var data = {"number_of_groups":number_groups, "redirection":next_app};
-
+			//var number_groups = $('#number_groups').val();
+      var number_groups = "0"
+      var graphALink = {speed: graphA.links[0].speed, frequency: graphA.links[0].frequency, temporal: graphA.links[0].temporal, size: graphA.links[0].sizeParticule, color: graphA.links[0].color, shape: graphA.links[0].shape}
+      var graphBLink = {speed: graphB.links[0].speed, frequency: graphB.links[0].frequency, temporal: graphB.links[0].temporal, size: graphB.links[0].sizeParticule, color: graphB.links[0].color, shape: graphB.links[0].shape}
+      var graphACleanLink = {speed: graphAClean.links[0].speed, frequency: graphAClean.links[0].frequency, temporal: graphAClean.links[0].temporal, size: graphAClean.links[0].size, color: graphAClean.links[0].color, shape: graphAClean.links[0].shape}
+      var graphBCleanLink = {speed: graphBClean.links[0].speed, frequency: graphBClean.links[0].frequency, temporal: graphBClean.links[0].temporal, size: graphBClean.links[0].size, color: graphBClean.links[0].color, shape: graphBClean.links[0].shape}
+      var data = {"redirection":next_app, "graphA":JSON.stringify(graphALink), "graphAClean":JSON.stringify(graphACleanLink), "graphB":JSON.stringify(graphBLink), "graphBClean":JSON.stringify(graphBCleanLink), "nb_nodes":JSON.stringify(dataRaw.nodes.length),"nb_links":JSON.stringify(dataRaw.links.length+2)};
+      console.log(data);
       number_groups = parseInt(number_groups);
       console.log(number_groups, Number.isInteger(number_groups));
 
-  		if (number_groups != "" && Number.isInteger(number_groups) == true){
-				$.ajax({
-				 url: '/store_data_counting_group',
-				 type: "POST",
-				 dataType: "json",
-				 data: data,
-				 //success: function (data) {console.log("RESULT", data); window.location = data.redirection;},
-				 success: function (data) {console.log("RESULT", "data"); window.location = data.redirection;},
-				 error: function (xhr, status, error) {console.log('Error: ' + error.message);},
-				});
-			}
-      else if (number_groups == ""){
-        d3.select('#popup1').style("display","block");
-        $( "#entry").text(" There is anything")
-      }
-      else if (Number.isInteger(number_groups) == false){
-        d3.select('#popup1').style("display","block");
-        $( "#entry").text(" It's not a number ...")
-      }
-
-
+			$.ajax({
+			 url: '/store_data_counting_group',
+				type: "POST",
+				dataType: "JSON",
+				data: data,
+				//success: function (data) {console.log("RESULT", data); window.location = data.redirection;},
+				success: function (data) {console.log("RESULT", "data"); window.location = data.redirection;},
+				error: function (xhr, status, error) {console.log('Error: ' + error.message);},
+			});
 
    }
 
 
+   d3.select('#increaseMotion').on('click', function(){
+     keyPressed = 1;
+     console.log(keyPressed);
+     console.log(sourceNode);
+      clearCanvas()
+      createLinkModular()
+   })
 
+   d3.select('#decreaseMotion').on('click', function(){
+     keyPressed = -1;
+     console.log(keyPressed);
+     console.log(sourceNode);
+      clearCanvas()
+      createLinkModular()
+   })
+
+   document.addEventListener('keypress', (event) => {
+     const keyName = event.key;
+   	switch (keyName) {
+   		case "Enter":
+   			send_data()
+        return
+   			break;
+   		default:
+   	}
+    if ( event.keyCode === 32 && !pressSpaceBar){
+      pressSpaceBar = true
+      showGraph()
+      return false
+    }
+  });
+
+    document.addEventListener('keydown', (event) => {
+      const keyName = event.key;
+    	console.log(keyName);
+    	switch (keyName) {
+        case "ArrowRight":
+          keyPressed = 1;
+          clearCanvas()
+          createLinkModular()
+    			break;
+    		case "ArrowLeft":
+          keyPressed = -1;
+          clearCanvas()
+          createLinkModular()
+    			break;
+    		default:
+
+    	}
+   });
 
 	</script>
 

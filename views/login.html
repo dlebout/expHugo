@@ -18,15 +18,16 @@
   	<input type="radio" name="gender" value="male" id="male" /> <label for="male">Male</label>
 		<br/><br/>
 		<br/><br/>
-		Visual variable : <select name="visual_variable">
-			  <option value="CrossingSpeedFrequency">CrossingSpeedFrequency</option>
-				<option value="Speed">Speed</option>
-		</select>
-		Static variable : <select name="static_variable">
-				<option value="Color">Color</option>
-				<option value="Size">Size</option>
-				<option value="Shape">Shape</option>
-		</select>
+		Motion variables :<br/>
+			Cross: <input type="checkbox" name="crossCheck" id="crossCheck">
+			Speed: <input type="checkbox" name="speedCheck" id="speedCheck">
+			Temporal: <input type="checkbox" name="temporalCheck" id="temporalCheck">
+			Frequency: <input type="checkbox"name="frequencyCheck" id="frequencyCheck">
+		<br/><br/>
+		Visual variables:<br/>
+			Color: <input type="checkbox" name="colorCheck">
+			Size: <input type="checkbox" name="sizeCheck">
+			Shape: <input type="checkbox"name="shapeCheck">
 
 
 	<br/><br/><br/>
@@ -35,6 +36,37 @@
 	  <button type="submit" class="btn btn-primary btn-block btn-large">Start</button>
 	</form>
 </div>
+
+<script>
+
+document.getElementById("crossCheck").onclick = function() {
+	if ( document.getElementById("crossCheck").checked ){
+		document.getElementById("frequencyCheck").disabled = true
+		document.getElementById("speedCheck").disabled = true
+	}else{
+		document.getElementById("frequencyCheck").disabled = false
+		document.getElementById("speedCheck").disabled = false
+	}
+}
+document.getElementById("speedCheck").onclick = function() {
+	if ( document.getElementById("speedCheck").checked ){
+		document.getElementById("frequencyCheck").disabled = true
+		document.getElementById("crossCheck").disabled = true
+	}else{
+		document.getElementById("frequencyCheck").disabled = false
+		document.getElementById("crossCheck").disabled = false
+	}
+}
+document.getElementById("frequencyCheck").onclick = function() {
+	if ( document.getElementById("frequencyCheck").checked ){
+		document.getElementById("crossCheck").disabled = true
+		document.getElementById("speedCheck").disabled = true
+	}else{
+		document.getElementById("crossCheck").disabled = false
+		document.getElementById("speedCheck").disabled = false
+	}
+}
+</script>
 
 <script>
 

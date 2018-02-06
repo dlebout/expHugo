@@ -18,6 +18,28 @@ $( "#submit" ).click(function() {
 	var next_app = parseInt(res[res.length-1]) +1;
   console.log("Store Data")
 	window.location = '/application/count_groups/'+ next_app  ;
+});
+
+
+
+document.addEventListener('keypress', (event) => {
+  const keyName = event.key;
+	console.log(keyName);
+	switch (keyName) {
+		case "Enter":
+
+
+			var URL = window.location.href;
+			var res = URL.split("/");
+			var next_app = parseInt(res[res.length-1]) +1;
+			console.log("Store Data")
+			window.location = '/application/count_groups/'+ next_app ;
+			break;
+		default:
+
+	}
 
 });
+
+
 </script>
