@@ -173,6 +173,14 @@ function showGraph(){
 }
 
 function clearAllCanvas(){
+    var scene1 = app2.visualisation.scene;
+      while(scene1.children.length > 0){
+        scene1.remove(scene1.children[0]);
+      }
+    var scene2 = app3.visualisation.scene;
+      while(scene2.children.length > 0){
+        scene2.remove(scene2.children[0]);
+      }
      /* for( var i = app.sparkiz.scene.children.length - 1; i >= 0; i--) {
       obj = app.sparkiz.scene.children[i];
       if (obj.name == "links") app.sparkiz.scene.remove(obj);
@@ -185,7 +193,8 @@ function clearAllCanvas(){
     app.sparkiz.links = []
     app.sparkiz.tube = []
     app = null*/
-    for( var i = app3.sparkiz.scene.children.length - 1; i >= 0; i--) {
+    //console.log(app3);
+/*    for( var i = app3.sparkiz.scene.children.length - 1; i >= 0; i--) {
       obj = app3.sparkiz.scene.children[i];
       if (obj.name == "links") app3.sparkiz.scene.remove(obj);
       if (obj.name == "roads") app3.sparkiz.scene.remove(obj);
@@ -208,12 +217,11 @@ function clearAllCanvas(){
     }
     app2.sparkiz.links = []
     app2.sparkiz.tube = []
-    app2 = null
-    d3.select('#visFrameOverlay').selectAll('*').remove()
-    d3.select('#visFrameOverlay2').selectAll('*').remove()
+    app2 = null*/
+    //d3.select('#visFrameOverlay').selectAll('*').remove()
+    //d3.select('#visFrameOverlay2').selectAll('*').remove()
     //d3.select('#visFrameOverlay3').selectAll('*').remove()
 }
-
 
 function getEdges(){
 
@@ -260,8 +268,25 @@ function loadGraph(){
     data.links.splice(index2,1)
     graphB.links[0] = edgesExp.edge2
 
+    for (var i = 0; i < dataRaw.links.length; i++) {
+      dataRaw.links[i].id = i
+    }
+
+    graphA.nodes[0].id = 0
+    graphA.nodes[1].id = 1
+    graphA.links[0].source = 0
+    graphA.links[0].target = 1
+    graphA.links[0].id = 0
+    graphB.nodes[0].id = 0
+    graphB.nodes[1].id = 1
+    graphB.links[0].source = 0
+    graphB.links[0].target = 1
+    graphB.links[0].id = 0
+
     graphAClean = JSON.parse(JSON.stringify(graphA));
     graphBClean = JSON.parse(JSON.stringify(graphB));
+
+
 
     //createGraphEmpty()
     createLinkReferenceEmpty()
@@ -290,7 +315,7 @@ function createGraphEmpty(){
 
 
         .node_properties("color", "#999797")
-        .node_properties("size", 7)
+        .node_properties("size", 7).tracks("opacity", 0 )
         //.nodes_mapping("label", function(d, i) {return d.id; })
         .particles("color", 'none')
         .particles("size", 0)
@@ -300,7 +325,7 @@ function createGraphEmpty(){
         // .roads_mapping("opacity", 0)
         // .roads_mapping("color", "#66c2a5")
 
-        .controls(false)
+
         .node_properties("x", function(d, i) {return d.X; })
         .node_properties("y", function(d, i) {return - d.Y;  })
         // // .nodes_mapping("x", function(d, i) {console.log("D VALUE", d); return d.px; })
@@ -334,7 +359,7 @@ function createGraph(){
 
 
         .node_properties("color", "#999797")
-        .node_properties("size", 7)
+        .node_properties("size", 7).tracks("opacity", 0 )
         .node_properties("label", function(d, i) { return d.id; })
         .node_properties("label_size", 10)
         .node_properties("label_color", 'black')
@@ -343,7 +368,7 @@ function createGraph(){
         // .roads_mapping("opacity", 0)
         // .roads_mapping("color", "#66c2a5")
 
-        .controls(false)
+
         .node_properties("x", function(d, i) {return d.X; })
         .node_properties("y", function(d, i) {return - d.Y;  })
         // // .nodes_mapping("x", function(d, i) {console.log("D VALUE", d); return d.px; })
@@ -388,11 +413,12 @@ function createGraph(){
 
          .node_properties("color", "#999797")
          .node_properties("size", 7)
+         .tracks("opacity", 0 )
          .node_properties("label", function(d, i) { return d.id; })
          .node_properties("label_size", 10)
          .node_properties("label_color", 'black')
          //.nodes_mapping("label", function(d, i) {return d.id; })
-         .controls(false)
+
          .node_properties("x", function(d, i) {return d.X; })
          .node_properties("y", function(d, i) {return - d.Y;  })
          // // .nodes_mapping("x", function(d, i) {console.log("D VALUE", d); return d.px; })
@@ -444,7 +470,7 @@ function createGraph(){
    }
 
    function createLinkReference(){
-     app3 = flownet.force("#visFrameOverlay", 1750 ,1750, "black",0)
+    /*   app3 = flownet.force("#visFrameOverlay", 1750 ,1750, "black",0)
          .nodes(graphA.nodes)
          .links(graphA.links)
 
@@ -460,7 +486,7 @@ function createGraph(){
 
 
          .node_properties("color", "#999797")
-         .node_properties("size", 7)
+         .node_properties("size", 7).tracks("opacity", 0 )
          .node_properties("label", function(d, i) { return d.id; })
          .node_properties("label_size", 10)
          .node_properties("label_color", 'black')
@@ -469,7 +495,7 @@ function createGraph(){
          // .roads_mapping("opacity", 0)
          // .roads_mapping("color", "#66c2a5")
 
-         .controls(false)
+
          .node_properties("x", function(d, i) {return d.X; })
          .node_properties("y", function(d, i) {return - d.Y;  })
          // // .nodes_mapping("x", function(d, i) {console.log("D VALUE", d); return d.px; })
@@ -485,6 +511,43 @@ function createGraph(){
          //.on("end", function() { launch_timer(); })
          .start_particle_delay(10000)
          .start(0);
+         */
+  flownet.force("#visFrameOverlay", 1750, 1750, "grey",0, app3.visualisation)
+    .nodes(graphA.nodes)
+    .links(graphA.links)
+                     .create_layout()
+                     .tracks("count", 1 )
+                     .create_WEBGL_element()
+                     .link_properties("curvature", 20)
+                     .link_properties("color", "#dddddd")
+                     .link_properties("size", 3)
+
+
+                     .node_properties("color", "#999797")
+                     .node_properties("size", 7).tracks("opacity", 0 )
+                     .node_properties("label", function(d, i) { return d.id; })
+                     .node_properties("label_size", 10)
+                     .node_properties("label_color", 'black')
+                     //.nodes_mapping("label", function(d, i) {return d.id; })
+
+                     // .roads_mapping("opacity", 0)
+                     // .roads_mapping("color", "#66c2a5")
+
+
+                     .node_properties("x", function(d, i) {return d.X; })
+                     .node_properties("y", function(d, i) {return - d.Y;  })
+                     // // .nodes_mapping("x", function(d, i) {console.log("D VALUE", d); return d.px; })
+                     // .nodes_mapping("y", function(d, i) {return d.py;  })
+                     // // .particle_mapping("color", function(d, i) {return color_scale(d.speed); })
+                     .particles("color", function(d, i) {console.log(d.color);return d.color; })
+                     .particles("size", function(d, i) {console.log(d.sizeParticule);return d.sizeParticule; })
+                     .particles("frequency", function(d, i) {return d.frequency; })
+                     .particles("pattern", function(d, i) {return d.temporal; })
+                     .particles("speed", function(d, i) {return d.speed; })
+
+                     .particles("texture", function(d, i) {return "images/"+ d.shape +"_texture.png";})
+                     //.on("end", function() { launch_timer(); })
+                     .update();
 
          var adjustX = -10;
          var adjustY = 8;
@@ -543,7 +606,7 @@ function createGraph(){
 
 
          .node_properties("color", "#999797")
-         .node_properties("size", 7)
+         .node_properties("size", 7).tracks("opacity", 0 )
          .node_properties("label", function(d, i) { return d.id; })
          .node_properties("label_size", 10)
          .node_properties("label_color", 'black')
@@ -556,7 +619,7 @@ function createGraph(){
          // .roads_mapping("opacity", 0)
          // .roads_mapping("color", "#66c2a5")
 
-         .controls(false)
+
          .node_properties("x", function(d, i) {return d.X; })
          .node_properties("y", function(d, i) {return - d.Y;  })
          // // .nodes_mapping("x", function(d, i) {console.log("D VALUE", d); return d.px; })
@@ -626,7 +689,7 @@ function createGraph(){
      if (graphB.links[0].frequency > 15) graphB.links[0].speed = 15
 
      console.log(graphB.links[0].frequency, graphA.links[0].frequency);
-
+     /*
      app2 = flownet.force("#visFrameOverlay2", 1750 ,1750, "black",0)
          .nodes(graphB.nodes)
          .links(graphB.links)
@@ -643,7 +706,7 @@ function createGraph(){
 
 
          .node_properties("color", "#999797")
-         .node_properties("size", 7)
+         .node_properties("size", 7).tracks("opacity", 0 )
          .node_properties("label", function(d, i) { return d.id; })
          .node_properties("label_size", 10)
          .node_properties("label_color", 'black')
@@ -652,7 +715,7 @@ function createGraph(){
          // .roads_mapping("opacity", 0)
          // .roads_mapping("color", "#66c2a5")
 
-         .controls(false)
+
          .node_properties("x", function(d, i) {return d.X; })
          .node_properties("y", function(d, i) {return - d.Y;  })
          // // .nodes_mapping("x", function(d, i) {console.log("D VALUE", d); return d.px; })
@@ -668,6 +731,43 @@ function createGraph(){
          //.on("end", function() { launch_timer(); })
          .start_particle_delay(10000)
          .start(0);
+         */
+         flownet.force("#visFrameOverlay2", 1750, 1750, "black",0, app2.visualisation)
+           .nodes(graphB.nodes)
+           .links(graphB.links)
+                            .create_layout()
+                            .tracks("count", 1 )
+                            .create_WEBGL_element()
+
+                                     .link_properties("curvature", 20)
+                                     .link_properties("color", "#dddddd")
+                                     .link_properties("size", 3)
+
+
+                                     .node_properties("color", "#999797")
+                                     .node_properties("size", 7).tracks("opacity", 0 )
+                                     .node_properties("label", function(d, i) { return d.id; })
+                                     .node_properties("label_size", 10)
+                                     .node_properties("label_color", 'black')
+                                     //.nodes_mapping("label", function(d, i) {return d.id; })
+
+                                     // .roads_mapping("opacity", 0)
+                                     // .roads_mapping("color", "#66c2a5")
+
+
+                                     .node_properties("x", function(d, i) {return d.X; })
+                                     .node_properties("y", function(d, i) {return - d.Y;  })
+                                     // // .nodes_mapping("x", function(d, i) {console.log("D VALUE", d); return d.px; })
+                                     // .nodes_mapping("y", function(d, i) {return d.py;  })
+                                     // // .particle_mapping("color", function(d, i) {return color_scale(d.speed); })
+                                     .particles("color", function(d, i) {console.log(d.color,d.speed,d.frequency);return d.color; })
+                                     .particles("size", function(d, i) {return d.sizeParticule; })
+                                     .particles("frequency", function(d, i) {return d.frequency; })
+                                     .particles("pattern", function(d, i) {return d.temporal; })
+                                     .particles("speed", function(d, i) {return d.speed; })
+
+                                     .particles("texture", function(d, i) {return "images/"+ d.shape +"_texture.png";})
+                            .update();
 
          var adjustX = -10;
          var adjustY = 8;
@@ -728,19 +828,10 @@ function createGraph(){
   }
   // Permet de supprimer le canvas
   function clearCanvas(){
-      for( var i = app2.sparkiz.scene.children.length - 1; i >= 0; i--) {
-        obj = app2.sparkiz.scene.children[i];
-        if (obj.name == "links") app2.sparkiz.scene.remove(obj);
-        if (obj.name == "roads") app2.sparkiz.scene.remove(obj);
-        if (obj.name.slice(0, 4) ==  "tube") app2.sparkiz.scene.remove(obj);
-        if (obj.name.slice(0, 15) == "particle_system") app2.sparkiz.scene.remove(obj);
-        if (obj.name == "circle") app2.sparkiz.scene.remove(obj);
-        if (obj.name == "label") app2.sparkiz.scene.remove(obj);
+    var scene = app2.visualisation.scene;
+      while(scene.children.length > 0){
+        scene.remove(scene.children[0]);
       }
-      app2.sparkiz.links = []
-      app2.sparkiz.tube = []
-      app2 = null
-      d3.select('#visFrameOverlay2').selectAll('*').remove()
   }
 
    function send_data(){

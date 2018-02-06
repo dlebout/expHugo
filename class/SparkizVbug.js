@@ -21360,7 +21360,7 @@ function WebGLClipping() {
 		}
 
 		scope.numPlanes = nPlanes;
-
+		
 		return dstArray;
 
 	}
@@ -37877,7 +37877,7 @@ Audio.prototype = Object.assign( Object.create( Object3D.prototype ), {
 		return this.gain.gain.value;
 
 	},
-
+	
 	setVolume: function ( value ) {
 
 		this.gain.gain.value = value;
@@ -53604,9 +53604,7 @@ var Mapping = /** @class */ (function () {
                         var a = callback(links[i], i);
                         value = new THREE.Color(a);
                     }
-                    // console.log(value)
-                    links[i].linkColor = value;
-                    // console.log(value.getHex())
+                    links[i]["linkColor"] = value.getHex();
                     // this.sparkiz.tube[i].children[0].material.color.setHex(value.getHex());
                 }
                 return this;
@@ -54049,7 +54047,7 @@ var Links = /** @class */ (function () {
             }
             // for (var k=0; k<curve_result.length; k+=1){
             //     this.draw_circle(curve_result[k].x, curve_result[k].y);
-            // }
+            // }   
             //var geometry2 = null;
             // CHECK SI LES DEPART ARRIVE SON EGAUX
             // console.log("TUBE SIDES", y2, y1, x2, x1);
@@ -54061,7 +54059,6 @@ var Links = /** @class */ (function () {
                 this.tube[i].children[0].geometry = geometry2;
                 // console.log(this.links[i])
                 this.tube[i].children[0].material.opacity = this.links[i].tube_opacity;
-                this.tube[i].children[0].material.color = this.links[i].linkColor;
                 // for (var a in geometry2.vertices) {
                 //     this.tube[i].children[0].geometry.vertices[a].x = geometry2.vertices[a].x;
                 //     this.tube[i].children[0].geometry.vertices[a].y = geometry2.vertices[a].y;
@@ -54076,7 +54073,7 @@ var Links = /** @class */ (function () {
                 // this.tube[i].children[0].geometry.normalsNeedUpdate = true;
                 // this.tube[i].children[0].geometry.colorsNeedUpdate = true;
                 // this.tube[i].children[0].geometry.tangentsNeedUpdate = true;
-                //object.geometry.verticesNeedUpdate = true;
+                //object.geometry.verticesNeedUpdate = true; 
                 // object.geometry.__dirtyVertices = true;
                 // object.geometry.dynamic = true;
             }
@@ -54096,7 +54093,6 @@ var Links = /** @class */ (function () {
         //console.log(this.links)
         for (var i = 0; i < this.links.length; i++) {
             this.links[i].width_tube = 1;
-            this.links[i].linkColor = new THREE.Color('grey');
             this.links[i].tube_opacity = 1;
             this.links[i].spatial_distribution = [];
             //this.links[i].particleSystems = [];
@@ -54135,14 +54131,14 @@ var Links = /** @class */ (function () {
             ]);
             //  console.log( this.links[i].numberSpacedPoints)
             var curve_result = curve.getSpacedPoints(1).concat(curve2.getSpacedPoints(this.links[i].numberSpacedPoints)).concat(curve3.getSpacedPoints(1)).concat(curve4.getSpacedPoints(this.links[i].numberSpacedPoints));
-            //console.log("1", this.links.length);
+            //console.log("1", this.links.length);           
             //console.log(curve_result)
             var shape = new THREE.Shape(curve_result);
             //ICI BUG
             geometry = new THREE.ShapeGeometry(shape);
             //console.log(2)
-            console.log(this.links[i]);
-            var material = new THREE.MeshBasicMaterial({ color: this.links[i].linkColor, opacity: this.links[i].tube_opacity, transparent: true });
+            //console.log("3");
+            var material = new THREE.MeshBasicMaterial({ color: 0x3498db, opacity: this.links[i].tube_opacity, transparent: true });
             //  material.opacity = 1;
             //var mesh = THREE.SceneUtils.createMultiMaterialObject( geometry, [ material] );
             var mesh = new THREE.Mesh(geometry, material);
@@ -54268,7 +54264,7 @@ var Tracks = /** @class */ (function () {
             this.tracks[i].userData = { id: this.tracks[i]._id, number_particles: 0 };
             // for (var j = 0; j< this.number_max_gates;j++){
             //     this.tracks[i].gate_colors.push(new THREE.Vector3( 1.0, 1.0, 1.0 ))
-            // }
+            // } 
             // console.log(this.tracks[i].gate_colors, this.tracks[i].gate_position)
             this.scene.add(multi_line);
         }
@@ -54422,7 +54418,7 @@ var Particles = /** @class */ (function () {
             /********************* NOMBRE MAXIMUM DE PORTE JE RAJOUTE +1 CAR JE VEUX MA DERNIERE PORTE POUR MON DERNIER POINTS  */
             this.particles[i].gate_position = Array.apply(null, Array(this.number_max_gates)).map(Number.prototype.valueOf, 0);
             this.particles[i].gate_velocity = Array.apply(null, Array(this.number_max_gates)).map(Number.prototype.valueOf, 1.0);
-            this.particles[i].gate_colors = []; //Array(this.links[i].gate_position).fill(new THREE.Vector3( 1.0, 1.0, 1.0 ));
+            this.particles[i].gate_colors = []; //Array(this.links[i].gate_position).fill(new THREE.Vector3( 1.0, 1.0, 1.0 )); 
             for (var j = 0; j < this.number_max_gates; j++) {
                 this.particles[i].gate_colors.push(new THREE.Vector3(1.0, 1.0, 1.0));
             }
@@ -54480,7 +54476,7 @@ var Particles = /** @class */ (function () {
                 id_particle += 1;
             }
         }
-        // console.log("FIIIIIT", this.links[id])
+        // console.log("FIIIIIT", this.links[id]) 
         this.particles[id].number_particles = this.particles[id].temporal_distribution.length;
         // console.log("TEMPORAL", this.links[id].temporal_distribution, this.links[id].number_particles, motifs)
         // console.log("Fitting", this.links[id].number_segmentation_pattern_fitting,  this.links[id].number_segmentation)
