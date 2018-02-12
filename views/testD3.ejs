@@ -97,7 +97,7 @@ for (var i = 0; i < rawdata.links.length; i++) {
   }
 
   flownetGraph.bindCallbackOnLink(function(d){
-    console.log(d.id);
+    flownetGraph.addColorGate(this, d, "red")
   }, "click")
   flownetGraph.bindCallbackOnLink(function(d){
     this.setAttribute('stroke', 'skyblue');

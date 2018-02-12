@@ -61,6 +61,14 @@
           -webkit-font-smoothing: antialiased;
         }
 
+        #spacePress{
+          color: black;
+          position: absolute;
+          margin-left: 400px;
+          margin-top: 100px;
+          font-size: 30px
+
+        }
         #number_trial{
           color: #999797;
           position: absolute;
@@ -77,6 +85,8 @@
           left: 1050px;
           font-size: 50px;
         }
+
+
     </style>
 
 
@@ -116,6 +126,7 @@
         <button id="increaseMotion" class="motion_button"> Increase </button><br/>
 			</div>
       <button type="submit" class="flat_button" id="next_trial"> Ok </button><br/>
+      <span id="spacePress">PRESS SPACE TO REVEAL THE GRAPH</span>
 
 
 
@@ -139,10 +150,12 @@
 	<script>
 
 var keyPressed = 0
+var keyPressedList = []
 var extractedLinks;
 var sourceNode,targetNode;
 var trial = String(<%= trial %>);
 var edgeOption = <%- JSON.stringify(edgeOption) %>;
+var mainMotion = <%- JSON.stringify(mainMotion) %>;
    //d3.json("data/data_expe.json", function(json) {
 var data_path = <%- JSON.stringify(data) %>;
 var edge_path = <%- JSON.stringify(edge) %>;
@@ -327,7 +340,7 @@ function createGraphEmpty(){
 
 
         .node_properties("x", function(d, i) {return d.X; })
-        .node_properties("y", function(d, i) {return - d.Y;  })
+        .node_properties("y", function(d, i) {return -150 - d.Y;  })
         // // .nodes_mapping("x", function(d, i) {console.log("D VALUE", d); return d.px; })
         // .nodes_mapping("y", function(d, i) {return d.py;  })
         // // .particle_mapping("color", function(d, i) {return color_scale(d.speed); })
@@ -340,7 +353,7 @@ function createGraphEmpty(){
 }
 
 function createGraph(){
-    app = flownet.force("#visFrame", 1750 ,1750, "black",0)
+    app = flownet.force("#visFrame", 1750 ,1450, "black",0)
         .nodes(dataRaw.nodes)
         .links(dataRaw.links)
 
@@ -370,7 +383,7 @@ function createGraph(){
 
 
         .node_properties("x", function(d, i) {return d.X; })
-        .node_properties("y", function(d, i) {return - d.Y;  })
+        .node_properties("y", function(d, i) {return -150 - d.Y;  })
         // // .nodes_mapping("x", function(d, i) {console.log("D VALUE", d); return d.px; })
         // .nodes_mapping("y", function(d, i) {return d.py;  })
         // // .particle_mapping("color", function(d, i) {return color_scale(d.speed); })
@@ -397,7 +410,7 @@ function createGraph(){
    });
 
    function createLinkReferenceEmpty(){
-     app3 = flownet.force("#visFrameOverlay", 1750 ,1750, "black",0)
+     app3 = flownet.force("#visFrameOverlay", 1750 ,1450, "black",0)
          .nodes(graphA.nodes)
          .links(graphA.links)
 
@@ -420,7 +433,7 @@ function createGraph(){
          //.nodes_mapping("label", function(d, i) {return d.id; })
 
          .node_properties("x", function(d, i) {return d.X; })
-         .node_properties("y", function(d, i) {return - d.Y;  })
+         .node_properties("y", function(d, i) {return -150 - d.Y;  })
          // // .nodes_mapping("x", function(d, i) {console.log("D VALUE", d); return d.px; })
          // .nodes_mapping("y", function(d, i) {return d.py;  })
          // // .particle_mapping("color", function(d, i) {return color_scale(d.speed); })
@@ -470,7 +483,7 @@ function createGraph(){
    }
 
    function createLinkReference(){
-    /*   app3 = flownet.force("#visFrameOverlay", 1750 ,1750, "black",0)
+    /*   app3 = flownet.force("#visFrameOverlay", 1750 ,1450, "black",0)
          .nodes(graphA.nodes)
          .links(graphA.links)
 
@@ -497,7 +510,7 @@ function createGraph(){
 
 
          .node_properties("x", function(d, i) {return d.X; })
-         .node_properties("y", function(d, i) {return - d.Y;  })
+         .node_properties("y", function(d, i) {return -150 - d.Y;  })
          // // .nodes_mapping("x", function(d, i) {console.log("D VALUE", d); return d.px; })
          // .nodes_mapping("y", function(d, i) {return d.py;  })
          // // .particle_mapping("color", function(d, i) {return color_scale(d.speed); })
@@ -535,7 +548,7 @@ function createGraph(){
 
 
                      .node_properties("x", function(d, i) {return d.X; })
-                     .node_properties("y", function(d, i) {return - d.Y;  })
+                     .node_properties("y", function(d, i) {return -150 - d.Y;  })
                      // // .nodes_mapping("x", function(d, i) {console.log("D VALUE", d); return d.px; })
                      // .nodes_mapping("y", function(d, i) {return d.py;  })
                      // // .particle_mapping("color", function(d, i) {return color_scale(d.speed); })
@@ -590,7 +603,7 @@ function createGraph(){
 
    function createLinkModularEmpty(){
 
-     app2 = flownet.force("#visFrameOverlay2", 1750 ,1750, "black",0)
+     app2 = flownet.force("#visFrameOverlay2", 1750 ,1450, "black",0)
          .nodes(graphB.nodes)
          .links(graphB.links)
 
@@ -621,7 +634,7 @@ function createGraph(){
 
 
          .node_properties("x", function(d, i) {return d.X; })
-         .node_properties("y", function(d, i) {return - d.Y;  })
+         .node_properties("y", function(d, i) {return -150 - d.Y;  })
          // // .nodes_mapping("x", function(d, i) {console.log("D VALUE", d); return d.px; })
          // .nodes_mapping("y", function(d, i) {return d.py;  })
          // // .particle_mapping("color", function(d, i) {return color_scale(d.speed); })
@@ -665,32 +678,35 @@ function createGraph(){
    }
 
    function createLinkModular(){
-
+     divide = 10
      if ( keyPressed == 1){
-       var newSpeed = ((Math.max(graphB.links[0].speed,graphA.links[0].speed)-Math.min(graphB.links[0].speed,graphA.links[0].speed))/2)
-       if ( newSpeed > 2 ) newSpeed = 2
-       var newFreq = ((Math.max(graphB.links[0].frequency,graphA.links[0].frequency)-Math.min(graphB.links[0].frequency,graphA.links[0].frequency))/2)
-       if ( newSpeed > 2 ) newSpeed = 2
-       graphB.links[0].speed = graphB.links[0].speed + newSpeed
-       graphB.links[0].frequency = graphB.links[0].frequency + newFreq
+       var newSpeed = ((Math.max(graphB.links[0].speed,graphA.links[0].speed)-Math.min(graphB.links[0].speed,graphA.links[0].speed))/divide)
+       var newFreq = ((Math.max(graphB.links[0].frequency,graphA.links[0].frequency)-Math.min(graphB.links[0].frequency,graphA.links[0].frequency))/divide)
+       if ( newSpeed < 0.05){
+        if (mainMotion === "cross" || mainMotion === "speed") graphB.links[0].speed = graphB.links[0].speed * 1.1
+       }else graphB.links[0].speed = graphB.links[0].speed + newSpeed
+       if ( newFreq < 0.05 ){
+        if (mainMotion === "cross" || mainMotion === "frequency") graphB.links[0].speed = graphB.links[0].frequency * 1.1
+       }else graphB.links[0].frequency = graphB.links[0].frequency + newFreq
        //tempo = tempo + (Math.max(tempo,graphA.links[0].temporal)-Math.min(tempo,graphA.links[0].temporal))
      }else if (keyPressed == -1){
-       var newSpeed = ((Math.max(graphB.links[0].speed,graphA.links[0].speed)-Math.min(graphB.links[0].speed,graphA.links[0].speed))/2)
-       if ( newSpeed > 2 ) newSpeed = 2
-       var newFreq = ((Math.max(graphB.links[0].frequency,graphA.links[0].frequency)-Math.min(graphB.links[0].frequency,graphA.links[0].frequency))/2)
-       if ( newSpeed > 2 ) newSpeed = 2
-       graphB.links[0].speed = graphB.links[0].speed - newSpeed
-       graphB.links[0].frequency = graphB.links[0].frequency - newFreq
+       var newSpeed = ((Math.max(graphB.links[0].speed,graphA.links[0].speed)-Math.min(graphB.links[0].speed,graphA.links[0].speed))/divide)
+       var newFreq = ((Math.max(graphB.links[0].frequency,graphA.links[0].frequency)-Math.min(graphB.links[0].frequency,graphA.links[0].frequency))/divide)
+       if ( newSpeed < 0.05){
+        if (mainMotion === "cross" || mainMotion === "speed") graphB.links[0].speed = graphB.links[0].speed * 0.9
+       }else graphB.links[0].speed = graphB.links[0].speed - newSpeed
+       if ( newFreq < 0.05 ){
+        if (mainMotion === "cross" || mainMotion === "frequency") graphB.links[0].speed = graphB.links[0].frequency * 0.9
+      }else graphB.links[0].frequency = graphB.links[0].frequency - newFreq
        //tempo = tempo - (Math.max(tempo,graphA.links[0].temporal)-Math.min(tempo,graphA.links[0].temporal))
      }
-     if (graphB.links[0].speed < 0.5) graphB.links[0].speed = 0.5
-     if (graphB.links[0].frequency < 0.1) graphB.links[0].speed = 0.1
+     if (graphB.links[0].speed < 1) graphB.links[0].speed = 1
+     if (graphB.links[0].frequency < 0.1) graphB.links[0].frequency = 0.1
      if (graphB.links[0].speed > 40) graphB.links[0].speed = 40
-     if (graphB.links[0].frequency > 15) graphB.links[0].speed = 15
+     if (graphB.links[0].frequency > 15) graphB.links[0].frequency = 15
 
-     console.log(graphB.links[0].frequency, graphA.links[0].frequency);
      /*
-     app2 = flownet.force("#visFrameOverlay2", 1750 ,1750, "black",0)
+     app2 = flownet.force("#visFrameOverlay2", 1750 ,1450, "black",0)
          .nodes(graphB.nodes)
          .links(graphB.links)
 
@@ -717,7 +733,7 @@ function createGraph(){
 
 
          .node_properties("x", function(d, i) {return d.X; })
-         .node_properties("y", function(d, i) {return - d.Y;  })
+         .node_properties("y", function(d, i) {return -150 - d.Y;  })
          // // .nodes_mapping("x", function(d, i) {console.log("D VALUE", d); return d.px; })
          // .nodes_mapping("y", function(d, i) {return d.py;  })
          // // .particle_mapping("color", function(d, i) {return color_scale(d.speed); })
@@ -756,7 +772,7 @@ function createGraph(){
 
 
                                      .node_properties("x", function(d, i) {return d.X; })
-                                     .node_properties("y", function(d, i) {return - d.Y;  })
+                                     .node_properties("y", function(d, i) {return -150 - d.Y;  })
                                      // // .nodes_mapping("x", function(d, i) {console.log("D VALUE", d); return d.px; })
                                      // .nodes_mapping("y", function(d, i) {return d.py;  })
                                      // // .particle_mapping("color", function(d, i) {return color_scale(d.speed); })
@@ -847,7 +863,7 @@ function createGraph(){
       var graphBLink = {speed: graphB.links[0].speed, frequency: graphB.links[0].frequency, temporal: graphB.links[0].temporal, size: graphB.links[0].sizeParticule, color: graphB.links[0].color, shape: graphB.links[0].shape}
       var graphACleanLink = {speed: graphAClean.links[0].speed, frequency: graphAClean.links[0].frequency, temporal: graphAClean.links[0].temporal, size: graphAClean.links[0].size, color: graphAClean.links[0].color, shape: graphAClean.links[0].shape}
       var graphBCleanLink = {speed: graphBClean.links[0].speed, frequency: graphBClean.links[0].frequency, temporal: graphBClean.links[0].temporal, size: graphBClean.links[0].size, color: graphBClean.links[0].color, shape: graphBClean.links[0].shape}
-      var data = {"redirection":next_app, "graphA":JSON.stringify(graphALink), "graphAClean":JSON.stringify(graphACleanLink), "graphB":JSON.stringify(graphBLink), "graphBClean":JSON.stringify(graphBCleanLink), "nb_nodes":JSON.stringify(dataRaw.nodes.length),"nb_links":JSON.stringify(dataRaw.links.length+2)};
+      var data = {"redirection":next_app, "graphA":JSON.stringify(graphALink), "graphAClean":JSON.stringify(graphACleanLink), "graphB":JSON.stringify(graphBLink), "graphBClean":JSON.stringify(graphBCleanLink), "nb_nodes":JSON.stringify(dataRaw.nodes.length),"nb_links":JSON.stringify(dataRaw.links.length+2), "keyPressedList":JSON.stringify(keyPressedList)};
       console.log(data);
       number_groups = parseInt(number_groups);
       console.log(number_groups, Number.isInteger(number_groups));
@@ -866,7 +882,9 @@ function createGraph(){
 
 
    d3.select('#increaseMotion').on('click', function(){
+     if ( !pressSpaceBar ) return
      keyPressed = 1;
+     keyPressedList.push(1)
      console.log(keyPressed);
      console.log(sourceNode);
       clearCanvas()
@@ -874,7 +892,9 @@ function createGraph(){
    })
 
    d3.select('#decreaseMotion').on('click', function(){
+     if ( !pressSpaceBar ) return
      keyPressed = -1;
+     keyPressedList.push(-1)
      console.log(keyPressed);
      console.log(sourceNode);
       clearCanvas()
@@ -885,12 +905,14 @@ function createGraph(){
      const keyName = event.key;
    	switch (keyName) {
    		case "Enter":
+        if (!pressSpaceBar) return
    			send_data()
         return
    			break;
    		default:
    	}
     if ( event.keyCode === 32 && !pressSpaceBar){
+      d3.select('#spacePress').remove()
       pressSpaceBar = true
       showGraph()
       return false
@@ -898,16 +920,19 @@ function createGraph(){
   });
 
     document.addEventListener('keydown', (event) => {
+      if ( !pressSpaceBar ) return
       const keyName = event.key;
     	console.log(keyName);
     	switch (keyName) {
         case "ArrowRight":
           keyPressed = 1;
+          keyPressedList.push(1)
           clearCanvas()
           createLinkModular()
     			break;
     		case "ArrowLeft":
           keyPressed = -1;
+          keyPressedList.push(-1)
           clearCanvas()
           createLinkModular()
     			break;

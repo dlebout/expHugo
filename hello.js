@@ -141,14 +141,36 @@ app.get('/createLayout', function (req, res) {
   res.render('generateNetwork', {});
 });
 
+/********* VISUAL CHECK OF ALL COMBINATION ***********************/
 app.get('/testSpeedSize', function (req, res) {
   res.render('testSpeedSize', {});
 });
+app.get('/testSpeedTemporal', function (req, res) {
+  res.render('testSpeedTemporal', {});
+});
+
 app.get('/testFrequencySize', function (req, res) {
   res.render('testFrequencySize', {});
 });
+app.get('/testFrequencyTemporal', function (req, res) {
+  res.render('testFrequencyTemporal', {});
+});
+
 app.get('/testTemporalSize', function (req, res) {
   res.render('testTemporalSize', {});
+});
+
+app.get('/testCrossSize', function (req, res) {
+  res.render('testCrossSize', {});
+});
+app.get('/testCrossShape', function (req, res) {
+  res.render('testCrossShape', {});
+});
+app.get('/testCrossTemporal', function (req, res) {
+  res.render('testCrossTemporal', {});
+});
+app.get('/testCrossColor', function (req, res) {
+  res.render('testCrossColor', {});
 });
 
 app.get('/testD3', function (req, res) {
@@ -231,7 +253,7 @@ app.get('/application/count_groups/:id_map', function (req, res) {
   start = Date.now();
   var id = parseInt(req.params.id_map);
   expe.set_new_state(id);
-  res.render('count_groups', { id_user :id_utilisateur, header: expe.header, description: expe.description , data : expe.dataSet, edge: expe.edge, edgeOption: expe.edgeOption, trial: id+1, max_trial:expe.max_id_expe, visualVariable:expe.motion_variable });
+  res.render('count_groups', { id_user :id_utilisateur, header: expe.header, description: expe.description , data : expe.dataSet, edge: expe.edge, edgeOption: expe.edgeOption, trial: id+1, max_trial:expe.max_id_expe, mainMotion:expe.mainMotion });
 });
 /************** APPLICATION CLASYFYING GROUPS *****************/
 app.get('/application/:id_map', function (req, res) {
@@ -326,7 +348,7 @@ function create_db_expe(staticVariables){
     ,"NUMBER_OF_NODES","NUMBER_OF_EDGES", "completion_time",	"edgeA_speed",	"edgeA_frequency",	"edgeA_temporal",
     "edgeA_color",	"edgeA_size",	"edgeA_shape",	"edgeB_speed",	"edgeB_frequency",	"edgeB_temporal",
     "edgeB_color",	"edgeB_size",	"edgeB_shape",	"edgeB_original_speed",	"edgeB_original_frequency",	"edgeB_original_temporal",
-    "difference_speed", "difference_frequency"]
+    "difference_speed", "difference_frequency", "keyPressedList"]
 
   console.log('Found file');
   db_expe.writeRecord(header);
@@ -420,14 +442,16 @@ function add_to_table(value,  time){
   graphA = JSON.parse(value.graphA);
   graphB = JSON.parse(value.graphB);
   graphBClean = JSON.parse(value.graphBClean);
-
+  keyList = JSON.parse(value.keyPressedList);
+  console.log(keyList);
   res= [id_utilisateur,expe.practice,expe.block,expe.trial, expe.graph_size+"_"+expe.template,expe.mainMotion, expe.speed, expe.frequency, expe.temporal, expe.cross,
         expe.speedMapping, expe.frequencyMapping, expe.temporalMapping, expe.crossMapping, expe.color, expe.colorMapping, expe.size, expe.sizeMapping,
         expe.shape, expe.shapeMapping, expe.edgeDistance, value.nb_nodes, value.nb_links, time,
         graphA.speed, graphA.frequency, graphA.temporal, graphA.color, graphA.size, graphA.shape,
         graphB.speed, graphB.frequency, graphB.temporal, graphB.color, graphB.size, graphB.shape,
         graphBClean.speed, graphBClean.frequency, graphBClean.temporal,
-        graphB.speed-graphA.speed, graphB.frequency-graphA.frequency
+        graphB.speed-graphA.speed, graphB.frequency-graphA.frequency,
+        keyList
       ]
 
   db_expe.writeRecord(res);
@@ -617,7 +641,7 @@ function return_by_id(array){
   var tab = [];
     for (var i=0; i<array.length; i++){
       console.log(parseInt(array[i].participant_id) , id_utilisateur)
-      if (parseInt(array[i].participant_id) == id_utilisateur && id_utilisateur == -1){
+      if (parseInt(array[i].participant_id) == id_utilisateur && id_utilisateur < 0){
         tab.push(array[i])
       }else{
           if (parseInt(array[i].participant_id) == id_utilisateur
