@@ -4,8 +4,6 @@
     <meta charset="utf-8" />
     <title>confluent vs powergraph</title>
 
-
-
     <style>
 
       .vis{
@@ -34,8 +32,8 @@
         }
 				.number_groups{
 					position:absolute;
-					top:605px;
-					left:1800px;
+					top:405px;
+					left:1600px;
 				}
         .span{
           font-family:arial;
@@ -45,7 +43,7 @@
         .motion_button:focus {outline:0;}
         .motion_button{
           background-color: #e6f9ff;
-          width: 100px;
+          width: 200px;
           height: 30px;
           /*line-height: 100px;*/
           /*margin: auto;*/
@@ -64,9 +62,9 @@
         #spacePress{
           color: black;
           position: absolute;
-          margin-left: 400px;
-          margin-top: 100px;
-          font-size: 30px
+          margin-left: 1550px;
+          margin-top: 700px;
+          font-size: 30px;
 
         }
         #number_trial{
@@ -75,7 +73,7 @@
         }
         #next_trial{
           top:905px;
-					left:2000px;
+					left:1870px;
           position: absolute;
         }
         #count_down{
@@ -105,303 +103,146 @@
     <div id="count_down">   </div>
 
     <div id="number_trial">
-      <span>Trial : <%= trial %> / <%= max_trial %></span><br/>
+      <span>Trial : <%= trial %> / 28</span><br/>
       <span>User : <%= id_user %> </span>
     </div>
       <div class="clear"></div>
   	  <div class="vis" id="visFrame"></div>
-      <div class="visOverlay" id="visFrameOverlay"></div>
-      <div class="visOverlay" id="visFrameOverlay2"></div>
       <div class="visOverlay" id="visFrameOverlay3">
         <svg id=markerOverlay width=100% height=100%  style="background:transparent"></svg>
       </div>
-			<div class="vertical-line" style="height: 1200px;"></div>
 
       <div class="clear"></div>
 			<div class="number_groups">
-				<span class="span"> The X of edge A can be superior/inferior or equal to the X of edge B.</span><br/>
-        <span class="span"> If needed adjust the X of edge B to match the X of edge A.</span><br/><br/><br/><br/>
-        <span class="span"> B's motion: </span>
+				<span class="span"> On the graph you can see two edges named A and B.</span><br/>
+				<span class="span"> Once pressed space, all the other edges will appear and particles flows will also appear on each edge.</span><br/>
+				<span class="span"> The particle speed of edge A will be either superior or inferior to the particle speed of edge B.</span><br/>
+        <span class="span"> So you need to ajust the particle speed of edge B to match the particle speed of edge A.</span><br/><br/><br/><br/>
+        <span class="span"> Particle speed of B: </span>
         <button id="decreaseMotion" class="motion_button"> Decrease </button>
         <button id="increaseMotion" class="motion_button"> Increase </button><br/>
 			</div>
       <button type="submit" class="flat_button" id="next_trial"> Ok </button><br/>
-      <span id="spacePress">PRESS SPACE TO REVEAL THE GRAPH</span>
+      <span id="spacePress">PRESS SPACE TO REVEAL THE GRAPH AND START THE TRIAL</span>
 
 
 
   </body>
-  <!--
-  <script src="https://threejs.org/build/three.min.js"></script>
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
-  <script src="https://d3js.org/d3.v3.min.js"></script>
-  <script src="https://cdn.rawgit.com/tgdwyer/WebCola/master/WebCola/cola.min.js"></script>
-  -->
-  <script src="class/Sparkiz.js"></script>
-
+  <script src="lib/flownet.js"></script>
   <script src="lib/three.min.js"></script>
   <script src="lib/jquery.min.js"></script>
   <script src="lib/d3.min.js"></script>
   <script src="lib/cola.min.js"></script>
 
-  <!-- <link rel="stylesheet" type="text/css" href="lib/fa/css/font-awesome.css"> -->
   <link rel="stylesheet" type="text/css" href="lib/expe.css">
   <link rel="stylesheet" type="text/css" href="lib/popup.css">
 	<script>
 
 var keyPressed = 0
 var keyPressedList = []
-var extractedLinks;
-var sourceNode,targetNode;
+
 var trial = String(<%= trial %>);
 var edgeOption = <%- JSON.stringify(edgeOption) %>;
-var mainMotion = <%- JSON.stringify(mainMotion) %>;
-   //d3.json("data/data_expe.json", function(json) {
 var data_path = <%- JSON.stringify(data) %>;
 var edge_path = <%- JSON.stringify(edge) %>;
 var edgesExp;
-var nodesEdgeA = []
-var edgeA
-var nodesEdgeB = []
-var edgeB
-var graphA = {}
-var graphB = {}
-var graphAClean = {}
-var graphBClean = {}
-var dataRaw
-var app;
-var app2;
-var app3;
-var speed,freq,tempo;
+
+var graph;
+
+var index_edge_reference;
+var index_edge_target;
+
+var flownet_graph;
+var flownet_edges;
+
 var pressSpaceBar = false
+var start,end;
 
 getEdges()
-//showGraph()
 
-function showGraph(){
-  clearAllCanvas()
-  createGraph()
-  createLinkReference()
-  createLinkModular()
-}
-
-function clearAllCanvas(){
-    var scene1 = app2.visualisation.scene;
-      while(scene1.children.length > 0){
-        scene1.remove(scene1.children[0]);
-      }
-    var scene2 = app3.visualisation.scene;
-      while(scene2.children.length > 0){
-        scene2.remove(scene2.children[0]);
-      }
-     /* for( var i = app.sparkiz.scene.children.length - 1; i >= 0; i--) {
-      obj = app.sparkiz.scene.children[i];
-      if (obj.name == "links") app.sparkiz.scene.remove(obj);
-      if (obj.name == "roads") app.sparkiz.scene.remove(obj);
-      if (obj.name.slice(0, 4) ==  "tube") app.sparkiz.scene.remove(obj);
-      if (obj.name.slice(0, 15) == "particle_system") app.sparkiz.scene.remove(obj);
-      if (obj.name == "circle") app.sparkiz.scene.remove(obj);
-      if (obj.name == "label") app.sparkiz.scene.remove(obj);
-    }
-    app.sparkiz.links = []
-    app.sparkiz.tube = []
-    app = null*/
-    //console.log(app3);
-/*    for( var i = app3.sparkiz.scene.children.length - 1; i >= 0; i--) {
-      obj = app3.sparkiz.scene.children[i];
-      if (obj.name == "links") app3.sparkiz.scene.remove(obj);
-      if (obj.name == "roads") app3.sparkiz.scene.remove(obj);
-      if (obj.name.slice(0, 4) ==  "tube") app3.sparkiz.scene.remove(obj);
-      if (obj.name.slice(0, 15) == "particle_system") app3.sparkiz.scene.remove(obj);
-      if (obj.name == "circle") app3.sparkiz.scene.remove(obj);
-      if (obj.name == "label") app3.sparkiz.scene.remove(obj);
-    }
-    app3.sparkiz.links = []
-    app3.sparkiz.tube = []
-    app3 = null
-    for( var i = app2.sparkiz.scene.children.length - 1; i >= 0; i--) {
-      obj = app2.sparkiz.scene.children[i];
-      if (obj.name == "links") app2.sparkiz.scene.remove(obj);
-      if (obj.name == "roads") app2.sparkiz.scene.remove(obj);
-      if (obj.name.slice(0, 4) ==  "tube") app2.sparkiz.scene.remove(obj);
-      if (obj.name.slice(0, 15) == "particle_system") app2.sparkiz.scene.remove(obj);
-      if (obj.name == "circle") app2.sparkiz.scene.remove(obj);
-      if (obj.name == "label") app2.sparkiz.scene.remove(obj);
-    }
-    app2.sparkiz.links = []
-    app2.sparkiz.tube = []
-    app2 = null*/
-    //d3.select('#visFrameOverlay').selectAll('*').remove()
-    //d3.select('#visFrameOverlay2').selectAll('*').remove()
-    //d3.select('#visFrameOverlay3').selectAll('*').remove()
-}
 
 function getEdges(){
-
-  $.get( '/data/'+edge_path, function(dataEdge) {
-    edgesExp = dataEdge[edgeOption[0]][edgeOption[1]][edgeOption[2]][edgeOption[3]][edgeOption[4]][edgeOption[5]][edgeOption[6]]
+  $.get( edge_path, function(dataEdge) {
+    edgesExp = dataEdge[edgeOption[0]][edgeOption[1]][edgeOption[2]][edgeOption[3]][edgeOption[4]]
     loadGraph()
   });
 }
 
 function loadGraph(){
-  $.get( '/data/'+data_path, function(data) {
-    graphA = JSON.parse(JSON.stringify(data));
-    graphB = JSON.parse(JSON.stringify(data));
-    dataRaw = data
-    var index1,index2;
-
-    for (var i = graphA.links.length-1; i >= 0; i--) {
-      if ( graphA.links[i].id !== Number(edgesExp.edge1.id) ){
-        graphA.links.splice(i,1)
-      }else{
-        index1 = i
+  $.get( data_path, function(data) {
+    graph = JSON.parse(JSON.stringify(data));
+    for (var i = 0; i < graph.links.length; i++) {
+      graph.links[i].special = false;
+    }
+    for (var i = 0; i < graph.links.length; i++) {
+      if ( Number(graph.links[i].id) === Number(edgesExp.reference.id)) {
+        graph.links[i].color = edgesExp.reference.color
+        graph.links[i].speed = edgesExp.reference.speed
+        index_edge_reference = i;
+        console.log(edgesExp.reference.speed);
+        graph.links[i].special = true;
+      }if ( Number(graph.links[i].id) === Number(edgesExp.target.id)) {
+        graph.links[i].color = edgesExp.target.color
+        graph.links[i].speed = edgesExp.target.speed
+        index_edge_target = i;
+        graph.links[i].special = true;
+        console.log(edgesExp.target.speed);
       }
     }
-    for (var i = graphA.nodes.length-1; i >= 0; i--) {
-      if ( graphA.nodes[i].id !== Number(edgesExp.edge1.source) && graphA.nodes[i].id !== Number(edgesExp.edge1.target)  ){
-        graphA.nodes.splice(i,1)
-      }
-    }
-    data.links.splice(index1,1)
-    graphA.links[0] = edgesExp.edge1
 
-    for (var i = graphB.links.length-1; i >= 0; i--) {
-      if ( graphB.links[i].id !== Number(edgesExp.edge2.id) ){
-        graphB.links.splice(i,1)
-      }else{
-        index2 = i
-      }
-    }
-    for (var i = graphB.nodes.length-1; i >= 0; i--) {
-      if ( graphB.nodes[i].id !== Number(edgesExp.edge2.source) && graphB.nodes[i].id !== Number(edgesExp.edge2.target)  ){
-        graphB.nodes.splice(i,1)
-      }
-    }
-    data.links.splice(index2,1)
-    graphB.links[0] = edgesExp.edge2
+    d3.select("#visFrame").append('svg').attr('id', "visFrameSVG").attr('width', 1500).attr('height', 1300).style("background", "#ffffff")
+        flownet_graph = flownet.graph("#visFrameSVG")
+          .nodes(graph.nodes)
+          .links(graph.links)
 
-    for (var i = 0; i < dataRaw.links.length; i++) {
-      dataRaw.links[i].id = i
-    }
+          .node_properties("color", function(d, i) { return "black" })
+          .node_properties("size", 7)
+          .node_properties("x", function(d, i) {return d.X ; })
+          .node_properties("y", function(d, i) {return d.Y-100 ;  })
 
-    graphA.nodes[0].id = 0
-    graphA.nodes[1].id = 1
-    graphA.links[0].source = 0
-    graphA.links[0].target = 1
-    graphA.links[0].id = 0
-    graphB.nodes[0].id = 0
-    graphB.nodes[1].id = 1
-    graphB.links[0].source = 0
-    graphB.links[0].target = 1
-    graphB.links[0].id = 0
+          .link_properties("color", "#f5F5F5")
+          .link_properties("size", 8)
+          .link_properties("visibility", "hidden")
 
-    graphAClean = JSON.parse(JSON.stringify(graphA));
-    graphBClean = JSON.parse(JSON.stringify(graphB));
+          .particles('computationalMethod', "Speed-Spacing-RelativePattern")
+          .particles('height', 2)
+          .particles('size', 8.5)
+          .particles('pattern', function(d){
+            return d.pattern
+          })
+          .particles('spacing', function(d){
+            return d.spacing
+          })
+          .particles('speed', function(d,i){
+            return 12*d.speed;
+          })
+          .particles('color', function(d,i){
+            return d.color
+          })
+          .particles("visibility", "hidden")
 
 
+          flownet_edges = flownet_graph.selectAll()
+            .filters(function(d,i){
+                return d.special
+            })
+            .link_properties("visibility", "visible")
 
-    //createGraphEmpty()
-    createLinkReferenceEmpty()
-    createLinkModularEmpty()
+          console.log(flownet_edges);
 
+            //.particule_properties("color", function(d, i) { return d.color })
+          createLinkReferenceLabel()
+          createLinkModularLabel()
   })
 }
 
-function createGraphEmpty(){
-    app = flownet.force("#visFrame", 1750 ,1250, "black",0)
-        .nodes(dataRaw.nodes)
-        .links(dataRaw.links)
-
-        .layout("linkDistance", 200)
-        .create_layout()
-        .tracks("count", 1 )
-
-        .create_WEBGL_element()
-
-        .link_properties("curvature", 20)
-        .link_properties("color", function(d, i) {
-          if ( d.color === "#00ffff" || d.color === "#00ff00" || d.color === "#ffff00" ) return "#666666";
-          return "#dddddd"
-        })
-        .link_properties("size", 3)
-
-
-        .node_properties("color", "#999797")
-        .node_properties("size", 7).tracks("opacity", 0 )
-        //.nodes_mapping("label", function(d, i) {return d.id; })
-        .particles("color", 'none')
-        .particles("size", 0)
-        .particles("frequency", 1)
-        .particles("pattern", [0])
-        .particles("speed", 1)
-        // .roads_mapping("opacity", 0)
-        // .roads_mapping("color", "#66c2a5")
-
-
-        .node_properties("x", function(d, i) {return d.X; })
-        .node_properties("y", function(d, i) {return -150 - d.Y;  })
-        // // .nodes_mapping("x", function(d, i) {console.log("D VALUE", d); return d.px; })
-        // .nodes_mapping("y", function(d, i) {return d.py;  })
-        // // .particle_mapping("color", function(d, i) {return color_scale(d.speed); })
-
-
-        .particles("texture", function(d, i) {return "images/"+ d.shape +"_texture.png";})
-        //.on("end", function() { launch_timer(); })
-        .start_particle_delay(10000)
-        .start(0);
+function showGraph(){
+  flownet_graph.node_properties("visibility", "visible")
+      .link_properties("visibility", "visible")
+      .particles("visibility", "visible")
+      .start()
 }
-
-function createGraph(){
-    app = flownet.force("#visFrame", 1750 ,1450, "black",0)
-        .nodes(dataRaw.nodes)
-        .links(dataRaw.links)
-
-        .layout("linkDistance", 200)
-        .create_layout()
-        .tracks("count", 1 )
-
-        .create_WEBGL_element()
-
-        .link_properties("curvature", 20)
-        .link_properties("color", function(d, i) {
-          if ( d.color === "#00ffff" || d.color === "#00ff00" || d.color === "#ffff00" ) return "#666666";
-          return "#dddddd"
-        })
-        .link_properties("size", 3)
-
-
-        .node_properties("color", "#999797")
-        .node_properties("size", 7).tracks("opacity", 0 )
-        .node_properties("label", function(d, i) { return d.id; })
-        .node_properties("label_size", 10)
-        .node_properties("label_color", 'black')
-        //.nodes_mapping("label", function(d, i) {return d.id; })
-
-        // .roads_mapping("opacity", 0)
-        // .roads_mapping("color", "#66c2a5")
-
-
-        .node_properties("x", function(d, i) {return d.X; })
-        .node_properties("y", function(d, i) {return -150 - d.Y;  })
-        // // .nodes_mapping("x", function(d, i) {console.log("D VALUE", d); return d.px; })
-        // .nodes_mapping("y", function(d, i) {return d.py;  })
-        // // .particle_mapping("color", function(d, i) {return color_scale(d.speed); })
-        .particles("color", function(d, i) {return d.color; })
-        .particles("size", function(d, i) {console.log(d.sizeParticule);return d.sizeParticule; })
-        .particles("frequency", function(d, i) {return d.frequency; })
-        .particles("pattern", function(d, i) {return d.temporal; })
-        .particles("speed", function(d, i) {return d.speed; })
-
-        .particles("texture", function(d, i) {return "images/"+ d.shape +"_texture.png";})
-        //.on("end", function() { launch_timer(); })
-        .start_particle_delay(10000)
-        .start(0);
-}
-
-
-
-
+  start = Date.now();
    $( "#close_popup" ).click(function() {
       d3.select('#popup1').style("display","none");
   });
@@ -409,464 +250,91 @@ function createGraph(){
 		 send_data();
    });
 
-   function createLinkReferenceEmpty(){
-     app3 = flownet.force("#visFrameOverlay", 1750 ,1450, "black",0)
-         .nodes(graphA.nodes)
-         .links(graphA.links)
+function createLinkReferenceLabel(){
+  console.log(graph);
+  d3.select("#markerOverlay").append('text')
+    .text("A")
+    .style('font', 'arial')
+    .style('font-size', '30px')
+    .style('font-weight', 'bold')
+    .style('text-anchor', 'middle')
+    .attr('x', function(d){
+      if ( graph.links[index_edge_reference].id%10 === 3) return graph.links[index_edge_reference].markerA.x +6
+      if ( graph.links[index_edge_reference].id%10 === 7) return graph.links[index_edge_reference].markerA.x -6
+      else return graph.links[index_edge_reference].markerA.x
+    })
+    .attr('y', function(d){
+      if ( graph.links[index_edge_reference].id%10 === 5) return graph.links[index_edge_reference].markerA.y-100 + 15
+      else return graph.links[index_edge_reference].markerA.y-100
+    })
+  d3.select("#markerOverlay").append('line')
+    .attr('x1', graph.links[index_edge_reference].markerB.x)
+    .attr('y1', graph.links[index_edge_reference].markerB.y-100)
+    .attr('x2', graph.links[index_edge_reference].markerC.x)
+    .attr('y2', graph.links[index_edge_reference].markerC.y-100)
+    .attr('stroke', 'black')
+    .attr('stroke-width', 3)
+}
 
-         .layout("linkDistance", 200)
-         .create_layout()
-         .tracks("count", 1 )
-
-         .create_WEBGL_element()
-
-         .link_properties("curvature", 20)
-         .link_properties("color", "#dddddd")
-         .link_properties("size", 3)
-
-         .node_properties("color", "#999797")
-         .node_properties("size", 7)
-         .tracks("opacity", 0 )
-         .node_properties("label", function(d, i) { return d.id; })
-         .node_properties("label_size", 10)
-         .node_properties("label_color", 'black')
-         //.nodes_mapping("label", function(d, i) {return d.id; })
-
-         .node_properties("x", function(d, i) {return d.X; })
-         .node_properties("y", function(d, i) {return -150 - d.Y;  })
-         // // .nodes_mapping("x", function(d, i) {console.log("D VALUE", d); return d.px; })
-         // .nodes_mapping("y", function(d, i) {return d.py;  })
-         // // .particle_mapping("color", function(d, i) {return color_scale(d.speed); })
-         .particles("color", 'none')
-         .particles("size", 0)
-         .particles("frequency", 1)
-         .particles("pattern", [0])
-         .particles("speed", 1)
-
-
-         .start_particle_delay(10000)
-         .start(0);
-         // .roads_mapping("opacity", 0)
-         // .roads_mapping("color", "#66c2a5")
-
-
-         var adjustX = -10;
-         var adjustY = 8;
-         var angleRadians = Math.atan2(edgesExp.marker1Bis[1] - edgesExp.marker1[1], edgesExp.marker1Bis[0] - edgesExp.marker1[0]);
-         console.log(angleRadians);
-         if ( Math.abs(angleRadians) < (Math.PI/6) || Math.abs(angleRadians) > (Math.PI - Math.PI/6)) {
-           ( edgesExp.marker1[0] < edgesExp.marker1Bis[0] )? adjustX += -16 : adjustX += 16;
-         }
-         else if ( Math.abs(angleRadians) < (Math.PI/2 - Math.PI/6) || Math.abs(angleRadians) > (Math.PI/2 + Math.PI/6)) {
-           ( edgesExp.marker1[0] < edgesExp.marker1Bis[0] )? adjustX += -16 : adjustX += 16;
-           ( edgesExp.marker1[1] > edgesExp.marker1Bis[1] )? adjustY += 16 : adjustY += -16;
-         }
-         else {
-           ( edgesExp.marker1[1] > edgesExp.marker1Bis[1] )? adjustY += 16 : adjustY += -16;
-         }
-         console.log(adjustX);
-         d3.select("#markerOverlay").append('text')
-          .text("A")
-          .style('font', 'arial')
-          .style('font-size', '30px')
-          .style('font-weight', 'bold')
-          .attr('x', edgesExp.marker1[0]+875+adjustX)
-          .attr('y', edgesExp.marker1[1]+875+adjustY)
-        d3.select("#markerOverlay").append('line')
-          .attr('x1',  edgesExp.marker1[0]+875)
-          .attr('y1',  edgesExp.marker1[1]+875)
-          .attr('x2',  edgesExp.marker1Bis[0]+875)
-          .attr('y2',  edgesExp.marker1Bis[1]+875)
-          .attr('stroke', 'black')
-          .attr('stroke-width', 3)
-
-   }
-
-   function createLinkReference(){
-    /*   app3 = flownet.force("#visFrameOverlay", 1750 ,1450, "black",0)
-         .nodes(graphA.nodes)
-         .links(graphA.links)
-
-         .layout("linkDistance", 200)
-         .create_layout()
-         .tracks("count", 1 )
-
-         .create_WEBGL_element()
-
-         .link_properties("curvature", 20)
-         .link_properties("color", "#dddddd")
-         .link_properties("size", 3)
-
-
-         .node_properties("color", "#999797")
-         .node_properties("size", 7).tracks("opacity", 0 )
-         .node_properties("label", function(d, i) { return d.id; })
-         .node_properties("label_size", 10)
-         .node_properties("label_color", 'black')
-         //.nodes_mapping("label", function(d, i) {return d.id; })
-
-         // .roads_mapping("opacity", 0)
-         // .roads_mapping("color", "#66c2a5")
-
-
-         .node_properties("x", function(d, i) {return d.X; })
-         .node_properties("y", function(d, i) {return -150 - d.Y;  })
-         // // .nodes_mapping("x", function(d, i) {console.log("D VALUE", d); return d.px; })
-         // .nodes_mapping("y", function(d, i) {return d.py;  })
-         // // .particle_mapping("color", function(d, i) {return color_scale(d.speed); })
-         .particles("color", function(d, i) {console.log(d.color);return d.color; })
-         .particles("size", function(d, i) {console.log(d.sizeParticule);return d.sizeParticule; })
-         .particles("frequency", function(d, i) {return d.frequency; })
-         .particles("pattern", function(d, i) {return d.temporal; })
-         .particles("speed", function(d, i) {return d.speed; })
-
-         .particles("texture", function(d, i) {return "images/"+ d.shape +"_texture.png";})
-         //.on("end", function() { launch_timer(); })
-         .start_particle_delay(10000)
-         .start(0);
-         */
-  flownet.force("#visFrameOverlay", 1750, 1750, "grey",0, app3.visualisation)
-    .nodes(graphA.nodes)
-    .links(graphA.links)
-                     .create_layout()
-                     .tracks("count", 1 )
-                     .create_WEBGL_element()
-                     .link_properties("curvature", 20)
-                     .link_properties("color", "#dddddd")
-                     .link_properties("size", 3)
-
-
-                     .node_properties("color", "#999797")
-                     .node_properties("size", 7).tracks("opacity", 0 )
-                     .node_properties("label", function(d, i) { return d.id; })
-                     .node_properties("label_size", 10)
-                     .node_properties("label_color", 'black')
-                     //.nodes_mapping("label", function(d, i) {return d.id; })
-
-                     // .roads_mapping("opacity", 0)
-                     // .roads_mapping("color", "#66c2a5")
-
-
-                     .node_properties("x", function(d, i) {return d.X; })
-                     .node_properties("y", function(d, i) {return -150 - d.Y;  })
-                     // // .nodes_mapping("x", function(d, i) {console.log("D VALUE", d); return d.px; })
-                     // .nodes_mapping("y", function(d, i) {return d.py;  })
-                     // // .particle_mapping("color", function(d, i) {return color_scale(d.speed); })
-                     .particles("color", function(d, i) {console.log(d.color);return d.color; })
-                     .particles("size", function(d, i) {console.log(d.sizeParticule);return d.sizeParticule; })
-                     .particles("frequency", function(d, i) {return d.frequency; })
-                     .particles("pattern", function(d, i) {return d.temporal; })
-                     .particles("speed", function(d, i) {return d.speed; })
-
-                     .particles("texture", function(d, i) {return "images/"+ d.shape +"_texture.png";})
-                     //.on("end", function() { launch_timer(); })
-                     .update();
-
-         var adjustX = -10;
-         var adjustY = 8;
-         var angleRadians = Math.atan2(edgesExp.marker1Bis[1] - edgesExp.marker1[1], edgesExp.marker1Bis[0] - edgesExp.marker1[0]);
-         console.log(angleRadians);
-         if ( Math.abs(angleRadians) < (Math.PI/6) || Math.abs(angleRadians) > (Math.PI - Math.PI/6)) {
-           ( edgesExp.marker1[0] < edgesExp.marker1Bis[0] )? adjustX += -16 : adjustX += 16;
-         }
-         else if ( Math.abs(angleRadians) < (Math.PI/2 - Math.PI/6) || Math.abs(angleRadians) > (Math.PI/2 + Math.PI/6)) {
-           ( edgesExp.marker1[0] < edgesExp.marker1Bis[0] )? adjustX += -16 : adjustX += 16;
-           ( edgesExp.marker1[1] > edgesExp.marker1Bis[1] )? adjustY += 16 : adjustY += -16;
-         }
-         else {
-           ( edgesExp.marker1[1] > edgesExp.marker1Bis[1] )? adjustY += 16 : adjustY += -16;
-         }
-         d3.select("#markerOverlay").append('text')
-          .text("A")
-          .style('font', 'arial')
-          .style('font-size', '30px')
-          .style('font-weight', 'bold')
-          .attr('x', edgesExp.marker1[0]+875+adjustX)
-          .attr('y', edgesExp.marker1[1]+875+adjustY)
-        d3.select("#markerOverlay").append('line')
-          .attr('x1',  edgesExp.marker1[0]+875)
-          .attr('y1',  edgesExp.marker1[1]+875)
-          .attr('x2',  edgesExp.marker1Bis[0]+875)
-          .attr('y2',  edgesExp.marker1Bis[1]+875)
-          .attr('stroke', 'black')
-          .attr('stroke-width', 3)
-
-        //intersection = [(graphA.nodes[1].X+graphA.nodes[0].X)/2,(graphA.nodes[1].Y+graphA.nodes[0].Y)/2]
-        /*d3.select("#markerOverlay").append('line')
-          .attr('stroke-width', 6)
-          .attr('stroke', 'black')
-         .attr('x1', JSON.parse(edgesExp.marker1)[0]+875)
-         .attr('y1', JSON.parse(edgesExp.marker1)[1]+875)
-         .attr('x2', intersection[0]+875)
-         .attr('y2', intersection[1]+875)*/
-   }
-
-   function createLinkModularEmpty(){
-
-     app2 = flownet.force("#visFrameOverlay2", 1750 ,1450, "black",0)
-         .nodes(graphB.nodes)
-         .links(graphB.links)
-
-         .layout("linkDistance", 200)
-         .create_layout()
-         .tracks("count", 1 )
-
-         .create_WEBGL_element()
-
-         .link_properties("curvature", 20)
-         .link_properties("color", "#dddddd")
-         .link_properties("size", 3)
-
-
-         .node_properties("color", "#999797")
-         .node_properties("size", 7).tracks("opacity", 0 )
-         .node_properties("label", function(d, i) { return d.id; })
-         .node_properties("label_size", 10)
-         .node_properties("label_color", 'black')
-         //.nodes_mapping("label", function(d, i) {return d.id; })
-         .particles("color", 'none')
-         .particles("size", 0)
-         .particles("frequency", 1)
-         .particles("pattern", [0])
-         .particles("speed", 1)
-         // .roads_mapping("opacity", 0)
-         // .roads_mapping("color", "#66c2a5")
-
-
-         .node_properties("x", function(d, i) {return d.X; })
-         .node_properties("y", function(d, i) {return -150 - d.Y;  })
-         // // .nodes_mapping("x", function(d, i) {console.log("D VALUE", d); return d.px; })
-         // .nodes_mapping("y", function(d, i) {return d.py;  })
-         // // .particle_mapping("color", function(d, i) {return color_scale(d.speed); })
-
-         .particles("texture", function(d, i) {return "images/"+ d.shape +"_texture.png";})
-         //.on("end", function() { launch_timer(); })
-         .start_particle_delay(10000)
-         .start(0);
-
-         var adjustX = -10;
-         var adjustY = 8;
-         var angleRadians = Math.atan2(edgesExp.marker2Bis[1] - edgesExp.marker2[1], edgesExp.marker2Bis[0] - edgesExp.marker2[0]);
-         console.log(angleRadians);
-         if ( Math.abs(angleRadians) < (Math.PI/6) || Math.abs(angleRadians) > (Math.PI - Math.PI/6)) {
-           ( edgesExp.marker2[0] < edgesExp.marker2Bis[0] )? adjustX += -16 : adjustX += 16;
-         }
-         else if ( Math.abs(angleRadians) < (Math.PI/2 - Math.PI/6) || Math.abs(angleRadians) > (Math.PI/2 + Math.PI/6)) {
-           ( edgesExp.marker2[0] < edgesExp.marker2Bis[0] )? adjustX += -16 : adjustX += 16;
-           ( edgesExp.marker2[1] > edgesExp.marker2Bis[1] )? adjustY += 16 : adjustY += -16;
-         }
-         else {
-           ( edgesExp.marker2[1] > edgesExp.marker2Bis[1] )? adjustY += 16 : adjustY += -16;
-         }
-         //if ( (Math.abs(edgesExp.marker1[1]-edgesExp.marker1Bis[1]) < 40) ){( edgesExp.marker1[0] < edgesExp.marker1Bis[0] )? adjustX += -16 : adjustX += 16;}
-         //if ( (Math.abs(edgesExp.marker1[0]-edgesExp.marker1Bis[0]) < 40) ){( edgesExp.marker1[1] > edgesExp.marker1Bis[1] )? adjustY += 16 : adjustY += -16;}
-         d3.select("#markerOverlay").append('text')
-          .text("B")
-          .style('font', 'arial')
-          .style('font-size', '30px')
-          .style('font-weight', 'bold')
-          .attr('x', edgesExp.marker2[0]+875+adjustX)
-          .attr('y', edgesExp.marker2[1]+875+adjustY)
-        d3.select("#markerOverlay").append('line')
-          .attr('x1',  edgesExp.marker2[0]+875)
-          .attr('y1',  edgesExp.marker2[1]+875)
-          .attr('x2',  edgesExp.marker2Bis[0]+875)
-          .attr('y2',  edgesExp.marker2Bis[1]+875)
-          .attr('stroke', 'black')
-          .attr('stroke-width', 3)
-
+   function createLinkModularLabel(){
+     d3.select("#markerOverlay").append('text')
+      .text("B")
+      .style('font', 'arial')
+      .style('font-size', '30px')
+      .style('font-weight', 'bold')
+      .style('text-anchor', 'middle')
+      .attr('x', function(d){
+        if ( graph.links[index_edge_target].id%10 === 3) return graph.links[index_edge_target].markerA.x +6
+        if ( graph.links[index_edge_target].id%10 === 7) return graph.links[index_edge_target].markerA.x -6
+        else return graph.links[index_edge_target].markerA.x
+      })
+      .attr('y', function(d){
+        if ( graph.links[index_edge_target].id%10 === 5) return graph.links[index_edge_target].markerA.y-100 + 15
+        else return graph.links[index_edge_target].markerA.y-100
+      })
+    d3.select("#markerOverlay").append('line')
+      .attr('x1', graph.links[index_edge_target].markerB.x)
+      .attr('y1', graph.links[index_edge_target].markerB.y-100)
+      .attr('x2', graph.links[index_edge_target].markerC.x)
+      .attr('y2', graph.links[index_edge_target].markerC.y-100)
+      .attr('stroke', 'black')
+      .attr('stroke-width', 3)
    }
 
    function createLinkModular(){
-     divide = 10
+
+     divide = 8
      if ( keyPressed == 1){
-       var newSpeed = ((Math.max(graphB.links[0].speed,graphA.links[0].speed)-Math.min(graphB.links[0].speed,graphA.links[0].speed))/divide)
-       var newFreq = ((Math.max(graphB.links[0].frequency,graphA.links[0].frequency)-Math.min(graphB.links[0].frequency,graphA.links[0].frequency))/divide)
-       if ( newSpeed < 0.05){
-        if (mainMotion === "cross" || mainMotion === "speed") graphB.links[0].speed = graphB.links[0].speed * 1.1
-       }else graphB.links[0].speed = graphB.links[0].speed + newSpeed
-       if ( newFreq < 0.05 ){
-        if (mainMotion === "cross" || mainMotion === "frequency") graphB.links[0].speed = graphB.links[0].frequency * 1.1
-       }else graphB.links[0].frequency = graphB.links[0].frequency + newFreq
-       //tempo = tempo + (Math.max(tempo,graphA.links[0].temporal)-Math.min(tempo,graphA.links[0].temporal))
+       var newSpeed = ((Math.max(graph.links[index_edge_target].speed,graph.links[index_edge_reference].speed)-Math.min(graph.links[index_edge_target].speed,graph.links[index_edge_reference].speed))/divide)
+       graph.links[index_edge_target].speed = graph.links[index_edge_target].speed + newSpeed
      }else if (keyPressed == -1){
-       var newSpeed = ((Math.max(graphB.links[0].speed,graphA.links[0].speed)-Math.min(graphB.links[0].speed,graphA.links[0].speed))/divide)
-       var newFreq = ((Math.max(graphB.links[0].frequency,graphA.links[0].frequency)-Math.min(graphB.links[0].frequency,graphA.links[0].frequency))/divide)
-       if ( newSpeed < 0.05){
-        if (mainMotion === "cross" || mainMotion === "speed") graphB.links[0].speed = graphB.links[0].speed * 0.9
-       }else graphB.links[0].speed = graphB.links[0].speed - newSpeed
-       if ( newFreq < 0.05 ){
-        if (mainMotion === "cross" || mainMotion === "frequency") graphB.links[0].speed = graphB.links[0].frequency * 0.9
-      }else graphB.links[0].frequency = graphB.links[0].frequency - newFreq
-       //tempo = tempo - (Math.max(tempo,graphA.links[0].temporal)-Math.min(tempo,graphA.links[0].temporal))
+       var newSpeed = ((Math.max(graph.links[index_edge_target].speed,graph.links[index_edge_reference].speed)-Math.min(graph.links[index_edge_target].speed,graph.links[index_edge_reference].speed))/divide)
+       graph.links[index_edge_target].speed = graph.links[index_edge_target].speed - newSpeed
      }
-     if (graphB.links[0].speed < 1) graphB.links[0].speed = 1
-     if (graphB.links[0].frequency < 0.1) graphB.links[0].frequency = 0.1
-     if (graphB.links[0].speed > 40) graphB.links[0].speed = 40
-     if (graphB.links[0].frequency > 15) graphB.links[0].frequency = 15
+     if (graph.links[index_edge_target].speed < 0.05) graph.links[index_edge_target].speed = 0.05
+     if (graph.links[index_edge_target].speed > 60) graph.links[index_edge_target].speed = 60
 
-     /*
-     app2 = flownet.force("#visFrameOverlay2", 1750 ,1450, "black",0)
-         .nodes(graphB.nodes)
-         .links(graphB.links)
-
-         .layout("linkDistance", 200)
-         .create_layout()
-         .tracks("count", 1 )
-
-         .create_WEBGL_element()
-
-         .link_properties("curvature", 20)
-         .link_properties("color", "#dddddd")
-         .link_properties("size", 3)
-
-
-         .node_properties("color", "#999797")
-         .node_properties("size", 7).tracks("opacity", 0 )
-         .node_properties("label", function(d, i) { return d.id; })
-         .node_properties("label_size", 10)
-         .node_properties("label_color", 'black')
-         //.nodes_mapping("label", function(d, i) {return d.id; })
-
-         // .roads_mapping("opacity", 0)
-         // .roads_mapping("color", "#66c2a5")
-
-
-         .node_properties("x", function(d, i) {return d.X; })
-         .node_properties("y", function(d, i) {return -150 - d.Y;  })
-         // // .nodes_mapping("x", function(d, i) {console.log("D VALUE", d); return d.px; })
-         // .nodes_mapping("y", function(d, i) {return d.py;  })
-         // // .particle_mapping("color", function(d, i) {return color_scale(d.speed); })
-         .particles("color", function(d, i) {console.log(d.color,d.speed,d.frequency);return d.color; })
-         .particles("size", function(d, i) {return d.sizeParticule; })
-         .particles("frequency", function(d, i) {return d.frequency; })
-         .particles("pattern", function(d, i) {return d.temporal; })
-         .particles("speed", function(d, i) {return d.speed; })
-
-         .particles("texture", function(d, i) {return "images/"+ d.shape +"_texture.png";})
-         //.on("end", function() { launch_timer(); })
-         .start_particle_delay(10000)
-         .start(0);
-         */
-         flownet.force("#visFrameOverlay2", 1750, 1750, "black",0, app2.visualisation)
-           .nodes(graphB.nodes)
-           .links(graphB.links)
-                            .create_layout()
-                            .tracks("count", 1 )
-                            .create_WEBGL_element()
-
-                                     .link_properties("curvature", 20)
-                                     .link_properties("color", "#dddddd")
-                                     .link_properties("size", 3)
-
-
-                                     .node_properties("color", "#999797")
-                                     .node_properties("size", 7).tracks("opacity", 0 )
-                                     .node_properties("label", function(d, i) { return d.id; })
-                                     .node_properties("label_size", 10)
-                                     .node_properties("label_color", 'black')
-                                     //.nodes_mapping("label", function(d, i) {return d.id; })
-
-                                     // .roads_mapping("opacity", 0)
-                                     // .roads_mapping("color", "#66c2a5")
-
-
-                                     .node_properties("x", function(d, i) {return d.X; })
-                                     .node_properties("y", function(d, i) {return -150 - d.Y;  })
-                                     // // .nodes_mapping("x", function(d, i) {console.log("D VALUE", d); return d.px; })
-                                     // .nodes_mapping("y", function(d, i) {return d.py;  })
-                                     // // .particle_mapping("color", function(d, i) {return color_scale(d.speed); })
-                                     .particles("color", function(d, i) {console.log(d.color,d.speed,d.frequency);return d.color; })
-                                     .particles("size", function(d, i) {return d.sizeParticule; })
-                                     .particles("frequency", function(d, i) {return d.frequency; })
-                                     .particles("pattern", function(d, i) {return d.temporal; })
-                                     .particles("speed", function(d, i) {return d.speed; })
-
-                                     .particles("texture", function(d, i) {return "images/"+ d.shape +"_texture.png";})
-                            .update();
-
-         var adjustX = -10;
-         var adjustY = 8;
-         var angleRadians = Math.atan2(edgesExp.marker2Bis[1] - edgesExp.marker2[1], edgesExp.marker2Bis[0] - edgesExp.marker2[0]);
-         console.log(angleRadians);
-         if ( Math.abs(angleRadians) < (Math.PI/6) || Math.abs(angleRadians) > (Math.PI - Math.PI/6)) {
-           ( edgesExp.marker2[0] < edgesExp.marker2Bis[0] )? adjustX += -16 : adjustX += 16;
-         }
-         else if ( Math.abs(angleRadians) < (Math.PI/2 - Math.PI/6) || Math.abs(angleRadians) > (Math.PI/2 + Math.PI/6)) {
-           ( edgesExp.marker2[0] < edgesExp.marker2Bis[0] )? adjustX += -16 : adjustX += 16;
-           ( edgesExp.marker2[1] > edgesExp.marker2Bis[1] )? adjustY += 16 : adjustY += -16;
-         }
-         else {
-           ( edgesExp.marker2[1] > edgesExp.marker2Bis[1] )? adjustY += 16 : adjustY += -16;
-         }
-         //if ( (Math.abs(edgesExp.marker1[1]-edgesExp.marker1Bis[1]) < 40) ){( edgesExp.marker1[0] < edgesExp.marker1Bis[0] )? adjustX += -16 : adjustX += 16;}
-         //if ( (Math.abs(edgesExp.marker1[0]-edgesExp.marker1Bis[0]) < 40) ){( edgesExp.marker1[1] > edgesExp.marker1Bis[1] )? adjustY += 16 : adjustY += -16;}
-         d3.select("#markerOverlay").append('text')
-          .text("B")
-          .style('font', 'arial')
-          .style('font-size', '30px')
-          .style('font-weight', 'bold')
-          .attr('x', edgesExp.marker2[0]+875+adjustX)
-          .attr('y', edgesExp.marker2[1]+875+adjustY)
-        d3.select("#markerOverlay").append('line')
-          .attr('x1',  edgesExp.marker2[0]+875)
-          .attr('y1',  edgesExp.marker2[1]+875)
-          .attr('x2',  edgesExp.marker2Bis[0]+875)
-          .attr('y2',  edgesExp.marker2Bis[1]+875)
-          .attr('stroke', 'black')
-          .attr('stroke-width', 3)
-
+     flownet_edges.stop()
+      .particles("speed", function(d){ return d.speed*12 })
+      .start()
+      console.log(graph.links[index_edge_reference].speed,graph.links[index_edge_target].speed);
    }
-
-  var count = 46;
-
-  function launch_timer(){
-      var counter = setInterval(function timerDown() {
-        count = count - 1;
-        if (count === -1) {
-           clearInterval(counter);
-           clearCanvas();
-           return;
-         }
-
-         var seconds = count % 60,
-           minutes = Math.floor(count / 60),
-           hours = Math.floor(minutes / 60);
-           minutes %= 60;
-           hours %= 60;
-
-           if ( minutes < 10) { minutes = '0' + minutes;}
-           if ( hours < 10 ) { hours = '0' + hours; }
-           if ( seconds < 10 ) {seconds = '0' + seconds;}
-           document.getElementById("count_down").innerHTML = hours + ":" + minutes + ":" + seconds;
-
-         } , 1000)
-  }
-  // Permet de supprimer le canvas
-  function clearCanvas(){
-    var scene = app2.visualisation.scene;
-      while(scene.children.length > 0){
-        scene.remove(scene.children[0]);
-      }
-  }
 
    function send_data(){
 			//console.log(dat)
-
+      end = Date.now();
 			/***** RECUPERE LES DONNEEEES *******/
 			var URL = window.location.href;
 			var res = URL.split("/");
 			var next_app = parseInt(res[res.length-1]);
-			//var number_groups = $('#number_groups').val();
-      var number_groups = "0"
-      var graphALink = {speed: graphA.links[0].speed, frequency: graphA.links[0].frequency, temporal: graphA.links[0].temporal, size: graphA.links[0].sizeParticule, color: graphA.links[0].color, shape: graphA.links[0].shape}
-      var graphBLink = {speed: graphB.links[0].speed, frequency: graphB.links[0].frequency, temporal: graphB.links[0].temporal, size: graphB.links[0].sizeParticule, color: graphB.links[0].color, shape: graphB.links[0].shape}
-      var graphACleanLink = {speed: graphAClean.links[0].speed, frequency: graphAClean.links[0].frequency, temporal: graphAClean.links[0].temporal, size: graphAClean.links[0].size, color: graphAClean.links[0].color, shape: graphAClean.links[0].shape}
-      var graphBCleanLink = {speed: graphBClean.links[0].speed, frequency: graphBClean.links[0].frequency, temporal: graphBClean.links[0].temporal, size: graphBClean.links[0].size, color: graphBClean.links[0].color, shape: graphBClean.links[0].shape}
-      var data = {"redirection":next_app, "graphA":JSON.stringify(graphALink), "graphAClean":JSON.stringify(graphACleanLink), "graphB":JSON.stringify(graphBLink), "graphBClean":JSON.stringify(graphBCleanLink), "nb_nodes":JSON.stringify(dataRaw.nodes.length),"nb_links":JSON.stringify(dataRaw.links.length+2), "keyPressedList":JSON.stringify(keyPressedList)};
-      console.log(data);
-      number_groups = parseInt(number_groups);
-      console.log(number_groups, Number.isInteger(number_groups));
+
+      var graphALink = {speed: graph.links[index_edge_reference].speed, color: graph.links[index_edge_reference].color}
+      var graphBLink = {speed: graph.links[index_edge_target].speed, color: graph.links[index_edge_target].color}
+
+      var graphACleanLink = {speed: edgesExp.reference.speed, color: edgesExp.reference.color}
+      var graphBCleanLink = {speed: edgesExp.target.speed, color: edgesExp.target.color}
+      var data = {"redirection":next_app, "graphA":JSON.stringify(graphALink), "graphAClean":JSON.stringify(graphACleanLink),
+            "graphB":JSON.stringify(graphBLink), "graphBClean":JSON.stringify(graphBCleanLink),"keyPressedList":JSON.stringify(keyPressedList), "completion_time":JSON.stringify((end-start)/1000)};
 
 			$.ajax({
 			 url: '/store_data_counting_group',
@@ -885,9 +353,6 @@ function createGraph(){
      if ( !pressSpaceBar ) return
      keyPressed = 1;
      keyPressedList.push(1)
-     console.log(keyPressed);
-     console.log(sourceNode);
-      clearCanvas()
       createLinkModular()
    })
 
@@ -895,9 +360,6 @@ function createGraph(){
      if ( !pressSpaceBar ) return
      keyPressed = -1;
      keyPressedList.push(-1)
-     console.log(keyPressed);
-     console.log(sourceNode);
-      clearCanvas()
       createLinkModular()
    })
 
@@ -927,13 +389,11 @@ function createGraph(){
         case "ArrowRight":
           keyPressed = 1;
           keyPressedList.push(1)
-          clearCanvas()
           createLinkModular()
     			break;
     		case "ArrowLeft":
           keyPressed = -1;
           keyPressedList.push(-1)
-          clearCanvas()
           createLinkModular()
     			break;
     		default:
