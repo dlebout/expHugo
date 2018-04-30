@@ -115,9 +115,9 @@
       <div class="clear"></div>
 			<div class="number_groups">
 				<span class="span"> On the graph you can see two edges named A and B.</span><br/>
-				<span class="span"> Once pressed space, all the other edges will appear and particles flows will also appear on each edge.</span><br/>
-				<span class="span"> The particle speed of edge A will be either superior or inferior to the particle speed of edge B.</span><br/>
-        <span class="span"> So you need to ajust the particle speed of edge B to match the particle speed of edge A.</span><br/><br/><br/><br/>
+				<span class="span"> Once pressed space, all the other edges will appear and each of them will have a particles flow.</span><br/><br/><br/>
+        <span style="font-size:24;" class="span">During this trial you need to <span id="increaseDecrease" style="font-size:24; font-weight:bold;" class="span"></span>
+        the speed of the particles of edge B until you notice a difference</span><br/><br/><br/><br/>
         <span class="span"> Particle speed of B: </span>
         <button id="decreaseMotion" class="motion_button"> Decrease </button>
         <button id="increaseMotion" class="motion_button"> Increase </button><br/>
@@ -158,8 +158,13 @@ var flownet_edges;
 var pressSpaceBar = false
 var start,end;
 
-getEdges()
+if ( edgeOption[2] === "inferior"){
+ d3.select("#increaseDecrease").text("decrease ")
+}else{
+ d3.select("#increaseDecrease").text("increase ")
+}
 
+getEdges()
 
 function getEdges(){
   $.get( edge_path, function(dataEdge) {
@@ -302,13 +307,54 @@ function createLinkReferenceLabel(){
    }
 
    function createLinkModular(){
-
-     divide = 8
+     var divide = 20
+     var newSpeed = 0
+     if ( edgeOption[2] === "superior"){
+       switch(graph.links[index_edge_reference].speed){
+        case 1:
+          newSpeed = (1.9-1)/divide
+          break;
+        case 1.9:
+          newSpeed = (3.61-1.9)/divide
+          break;
+        case 3.61:
+          newSpeed = (6.81-3.61)/divide
+          break;
+        case 6.86:
+          newSpeed = (13.034-6.81)/divide
+          break;
+        case 13.034:
+          newSpeed = (24.8-13.034)/divide
+          break;
+        case 24.8:
+          newSpeed = (50-24.8)/divide
+          break;
+       }
+    }else if ( edgeOption[2] === "inferior"){
+       switch(graph.links[index_edge_reference].speed){
+        case 1:
+          newSpeed = (1-0.5)/divide
+          break;
+        case 1.9:
+          newSpeed = (1.9-1)/divide
+          break;
+        case 3.61:
+          newSpeed = (3.61-1.9)/divide
+          break;
+        case 6.86:
+          newSpeed = (6.81-3.61)/divide
+          break;
+        case 13.034:
+          newSpeed = (13.034-6.81)/divide
+          break;
+        case 24.8:
+          newSpeed = (24.8-13.034)/divide
+          break;
+       }
+     }
      if ( keyPressed == 1){
-       var newSpeed = ((Math.max(graph.links[index_edge_target].speed,graph.links[index_edge_reference].speed)-Math.min(graph.links[index_edge_target].speed,graph.links[index_edge_reference].speed))/divide)
        graph.links[index_edge_target].speed = graph.links[index_edge_target].speed + newSpeed
      }else if (keyPressed == -1){
-       var newSpeed = ((Math.max(graph.links[index_edge_target].speed,graph.links[index_edge_reference].speed)-Math.min(graph.links[index_edge_target].speed,graph.links[index_edge_reference].speed))/divide)
        graph.links[index_edge_target].speed = graph.links[index_edge_target].speed - newSpeed
      }
      if (graph.links[index_edge_target].speed < 0.05) graph.links[index_edge_target].speed = 0.05

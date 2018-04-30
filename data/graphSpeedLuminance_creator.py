@@ -39,6 +39,8 @@ heightDefault = [5]
 #colorBlue = ["#f7fbff","#deebf7","#c6dbef","#9ecae1","#6baed6","#4292c6","#2171b5","#08519c","#08306b"]
 #colorGreen = ["#f7fcf5","#e5f5e0","#c7e9c0","#a1d99b","#74c476","#41ab5d","#238b45","#006d2c","#00441b"]
 #colorRed = ["#fff5f0","#fee0d2","#fcbba1","#fc9272","#fb6a4a","#ef3b2c","#cb181d","#a50f15","#67000d"]
+
+#                           85%        74%      59%        45%      32%         15%
 luminance_achromatic = ["#d9d9d9","#bdbdbd","#969696","#737373","#525252", "#252525"]
 colorDefault = ["black"]
 
@@ -126,8 +128,12 @@ def createGraphIdentity(templateGraph):
 def firstPart():
     G = createGraphIdentity(1)
     graphCreation(G, speed,frequencyDefault,luminance_achromatic,patternDefault, "./speed_luminance_achromatic")
-    edgesCreationJND(G, speed, luminance_achromatic, "./speed_luminance_achromatic")
-    edgesCreationUS(G, speedUS, luminance_achromatic, "./speed_luminance_achromatic")
+    group = createGroupArray()
+    random.shuffle(group)
+    group = group[:24]
+    edgesCreationJND(group, speed, luminance_achromatic, "./speed_luminance_achromatic")
+    #edgesCreationJNDiso(G, speed, luminance_achromatic, "./speed_luminance_achromatic")
+    edgesCreationUS(group, speedUS, luminance_achromatic, "./speed_luminance_achromatic")
 
     #G,edgesLayoutFixed = createGraphIdentity(1)
     #graphCreation(G,edgesLayoutFixed, speed,frequencyDefault,colorBlue,patternDefault, "../data/Speed_LightnessBlue")
@@ -271,11 +277,11 @@ def edgesCreationUS(dataLayoutFixed, speed, color, path):
     iteration = 0
     for complexity in ["near","far"]:
         templateEdge[complexity] = {}
-        for value1 in ['1','2','3','4','5','6']:
+        for value1 in ['1','1.9','3.61','6.86','13.034','24.8']:
             templateEdge[complexity][value1] = {}
             for value2 in ['inferior', 'superior']:
                 templateEdge[complexity][value1][value2] = {}
-                for value3 in ['0-0','0-1','0-3','0-5','5-5','5-4','5-2']:
+                for value3 in ['85-85','85-74','85-45','85-15','15-15','15-32','15-59']:
                     templateEdge[complexity][value1][value2][value3]= {}
                     for value4 in ['reference','target']:
                         templateEdge[complexity][value1][value2][value3][value4] = {}
@@ -288,90 +294,90 @@ def edgesCreationUS(dataLayoutFixed, speed, color, path):
 
                         if ( value1 == '1'):
                             if ( value2 == 'inferior'):
-                                ref['speed'] = speed[1]
-                                tar['speed'] = speed[0]
+                                ref['speed'] = speedUS[1]
+                                tar['speed'] = speedUS[0]
                             elif ( value2 == 'superior'):
-                                ref['speed'] = speed[1]
-                                tar['speed'] = speed[2]
-                        elif ( value1 == '2'):
+                                ref['speed'] = speedUS[1]
+                                tar['speed'] = speedUS[2]
+                        elif ( value1 == '1.9'):
                             if ( value2 == 'inferior'):
-                                ref['speed'] = speed[2]
-                                tar['speed'] = speed[1]
+                                ref['speed'] = speedUS[2]
+                                tar['speed'] = speedUS[1]
                             elif ( value2 == 'superior'):
-                                ref['speed'] = speed[2]
-                                tar['speed'] = speed[3]
-                        elif ( value1 == '3'):
+                                ref['speed'] = speedUS[2]
+                                tar['speed'] = speedUS[3]
+                        elif ( value1 == '3.61'):
                             if ( value2 == 'inferior'):
-                                ref['speed'] = speed[3]
-                                tar['speed'] = speed[2]
+                                ref['speed'] = speedUS[3]
+                                tar['speed'] = speedUS[2]
                             elif ( value2 == 'superior'):
-                                ref['speed'] = speed[3]
-                                tar['speed'] = speed[4]
-                        elif ( value1 == '4'):
+                                ref['speed'] = speedUS[3]
+                                tar['speed'] = speedUS[4]
+                        elif ( value1 == '6.86'):
                             if ( value2 == 'inferior'):
-                                ref['speed'] = speed[4]
-                                tar['speed'] = speed[3]
+                                ref['speed'] = speedUS[4]
+                                tar['speed'] = speedUS[3]
                             elif ( value2 == 'superior'):
-                                ref['speed'] = speed[4]
-                                tar['speed'] = speed[5]
-                        elif ( value1 == '5'):
+                                ref['speed'] = speedUS[4]
+                                tar['speed'] = speedUS[5]
+                        elif ( value1 == '13.034'):
                             if ( value2 == 'inferior'):
-                                ref['speed'] = speed[5]
-                                tar['speed'] = speed[4]
+                                ref['speed'] = speedUS[5]
+                                tar['speed'] = speedUS[4]
                             elif ( value2 == 'superior'):
-                                ref['speed'] = speed[5]
-                                tar['speed'] = speed[6]
-                        elif ( value1 == '6'):
+                                ref['speed'] = speedUS[5]
+                                tar['speed'] = speedUS[6]
+                        elif ( value1 == '24.8'):
                             if ( value2 == 'inferior'):
-                                ref['speed'] = speed[6]
-                                tar['speed'] = speed[5]
+                                ref['speed'] = speedUS[6]
+                                tar['speed'] = speedUS[5]
                             elif ( value2 == 'superior'):
-                                ref['speed'] = speed[6]
-                                tar['speed'] = speed[7]
+                                ref['speed'] = speedUS[6]
+                                tar['speed'] = speedUS[7]
 
-                        if ( value3 == '0-0'):
+                        if ( value3 == '85-85'):
                             if ( value4 == 'reference'):
                                 ref['color'] = color[0]
                                 tar['color'] = color[0]
                             elif ( value4 == 'target'):
                                 ref['color'] = color[0]
                                 tar['color'] = color[0]
-                        elif ( value3 == '0-1'):
+                        elif ( value3 == '85-74'):
                             if ( value4 == 'reference'):
                                 ref['color'] = color[0]
                                 tar['color'] = color[1]
                             elif ( value4 == 'target'):
                                 ref['color'] = color[1]
                                 tar['color'] = color[0]
-                        elif ( value3 == '0-3'):
+                        elif ( value3 == '85-45'):
                             if ( value4 == 'reference'):
                                 ref['color'] = color[0]
                                 tar['color'] = color[3]
                             elif ( value4 == 'target'):
                                 ref['color'] = color[3]
                                 tar['color'] = color[0]
-                        elif ( value3 == '0-5'):
+                        elif ( value3 == '85-15'):
                             if ( value4 == 'reference'):
                                 ref['color'] = color[0]
                                 tar['color'] = color[5]
                             elif ( value4 == 'target'):
                                 ref['color'] = color[5]
                                 tar['color'] = color[0]
-                        elif ( value3 == '5-5'):
+                        elif ( value3 == '15-15'):
                             if ( value4 == 'reference'):
                                 ref['color'] = color[5]
                                 tar['color'] = color[5]
                             elif ( value4 == 'target'):
                                 ref['color'] = color[5]
                                 tar['color'] = color[5]
-                        elif ( value3 == '5-4'):
+                        elif ( value3 == '15-32'):
                             if ( value4 == 'reference'):
                                 ref['color'] = color[5]
                                 tar['color'] = color[4]
                             elif ( value4 == 'target'):
                                 ref['color'] = color[4]
                                 tar['color'] = color[5]
-                        elif ( value3 == '5-2'):
+                        elif ( value3 == '15-59'):
                             if ( value4 == 'reference'):
                                 ref['color'] = color[5]
                                 tar['color'] = color[2]
@@ -385,72 +391,160 @@ def edgesCreationUS(dataLayoutFixed, speed, color, path):
 
                         iteration += 1
     saveEdges(templateEdge, path, '/edgesUS.json')
-
-def edgesCreationJND(dataLayoutFixed, speed, color, path):
+def edgesCreationJND(group, speed, color, path):
     templateEdge = {}
-    for complexity in ["near","far"]:
+    iteration = -1
+    for complexity in ["replication1","replication2"]:
         templateEdge[complexity] = {}
-        for value1 in ['low1','low2','medium1','medium2', 'high1', 'high2']:
+        for value1 in ['1','1.9','3.61','6.86','13.034','24.8']:
             templateEdge[complexity][value1] = {}
             for value2 in ['increase', 'decrease']:
                 templateEdge[complexity][value1][value2] = {}
-                for value3 in ['low-0','low-1','low-3','low-5','high-0','high-1','high-3','high-5']:
+                iteration += 1
+                for value3 in ['85-74','85-59','85-45','85-15','15-32','15-45','15-59','45-59','32-74']:
                     templateEdge[complexity][value1][value2][value3]= {}
-                    for value4 in ['replication1', 'replication2']:
+                    for value4 in ['reference','target']:
                         templateEdge[complexity][value1][value2][value3][value4] = {}
 
                         ref = {}
                         tar = {}
+                        print len(group),iteration
+                        ref['id'] = group[iteration]["idRef"]
+                        tar['id'] = group[iteration]["idTar"]
 
-                        ref['id'] = 1
-                        tar['id'] = 5
-                        if ( value1 == 'low1'):
+                        if ( value1 == '1'):
                             ref['speed'] = speed[0]
                             tar['speed'] = speed[0]
-                        elif ( value1 == 'low2'):
+                        elif ( value1 == '1.9'):
                             ref['speed'] = speed[1]
                             tar['speed'] = speed[1]
-                        elif ( value1 == 'medium1'):
+                        elif ( value1 == '3.61'):
                             ref['speed'] = speed[2]
                             tar['speed'] = speed[2]
-                        elif ( value1 == 'medium2'):
+                        elif ( value1 == '6.81'):
                             ref['speed'] = speed[3]
                             tar['speed'] = speed[3]
-                        elif ( value1 == 'high1'):
+                        elif ( value1 == '13.034'):
                             ref['speed'] = speed[4]
                             tar['speed'] = speed[4]
-                        elif ( value1 == 'high2'):
+                        elif ( value1 == '24.8'):
                             ref['speed'] = speed[5]
                             tar['speed'] = speed[5]
 
-                        if ( value1 == 'low-0'):
-                            ref['color'] = color[0]
-                            tar['color'] = color[0]
-                        elif ( value1 == 'low-1'):
-                            ref['color'] = color[0]
-                            tar['color'] = color[1]
-                        elif ( value1 == 'low-3'):
-                            ref['color'] = color[0]
-                            tar['color'] = color[3]
-                        elif ( value1 == 'low-5'):
-                            ref['color'] = color[0]
-                            tar['color'] = color[5]
-                        elif ( value1 == 'high-0'):
-                            ref['color'] = color[5]
-                            tar['color'] = color[5]
-                        elif ( value1 == 'high-1'):
-                            ref['color'] = color[5]
-                            tar['color'] = color[4]
-                        elif ( value1 == 'high-3'):
-                            ref['color'] = color[5]
-                            tar['color'] = color[2]
-                        elif ( value1 == 'high-5'):
-                            ref['color'] = color[5]
-                            tar['color'] = color[0]
+                        if ( value3 == '85-59'):
+                            if ( value4 == 'reference'):
+                                ref['color'] = color[0]
+                                tar['color'] = color[2]
+                            elif ( value4 == 'target'):
+                                ref['color'] = color[2]
+                                tar['color'] = color[0]
+                        elif ( value3 == '15-45'):
+                            if ( value4 == 'reference'):
+                                ref['color'] = color[5]
+                                tar['color'] = color[3]
+                            elif ( value4 == 'target'):
+                                ref['color'] = color[3]
+                                tar['color'] = color[5]
+                        elif ( value3 == '32-74'):
+                            if ( value4 == 'reference'):
+                                ref['color'] = color[4]
+                                tar['color'] = color[1]
+                            elif ( value4 == 'target'):
+                                ref['color'] = color[1]
+                                tar['color'] = color[4]
+                        elif ( value3 == '85-74'):
+                            if ( value4 == 'reference'):
+                                ref['color'] = color[0]
+                                tar['color'] = color[1]
+                            elif ( value4 == 'target'):
+                                ref['color'] = color[1]
+                                tar['color'] = color[0]
+                        elif ( value3 == '85-45'):
+                            if ( value4 == 'reference'):
+                                ref['color'] = color[0]
+                                tar['color'] = color[3]
+                            elif ( value4 == 'target'):
+                                ref['color'] = color[3]
+                                tar['color'] = color[0]
+                        elif ( value3 == '85-15'):
+                            if ( value4 == 'reference'):
+                                ref['color'] = color[0]
+                                tar['color'] = color[5]
+                            elif ( value4 == 'target'):
+                                ref['color'] = color[5]
+                                tar['color'] = color[0]
+                        elif ( value3 == '45-59'):
+                            if ( value4 == 'reference'):
+                                ref['color'] = color[3]
+                                tar['color'] = color[2]
+                            elif ( value4 == 'target'):
+                                ref['color'] = color[2]
+                                tar['color'] = color[3]
+                        elif ( value3 == '15-32'):
+                            if ( value4 == 'reference'):
+                                ref['color'] = color[5]
+                                tar['color'] = color[4]
+                            elif ( value4 == 'target'):
+                                ref['color'] = color[4]
+                                tar['color'] = color[5]
+                        elif ( value3 == '15-59'):
+                            if ( value4 == 'reference'):
+                                ref['color'] = color[5]
+                                tar['color'] = color[2]
+                            elif ( value4 == 'target'):
+                                ref['color'] = color[2]
+                                tar['color'] = color[5]
+
 
                         templateEdge[complexity][value1][value2][value3][value4]["reference"] = ref
                         templateEdge[complexity][value1][value2][value3][value4]["target"] = tar
 
-    saveEdges(templateEdge, path, '/edgesJND.json')
+    saveEdges(templateEdge, path, '/edgesJND-luminant.json')
+def edgesCreationJNDiso(group, speed, color, path):
+    templateEdge = {}
+    iteration = -1
+    for complexity in ["replication1"]:
+        templateEdge[complexity] = {}
+        for value1 in ['1','1.9','3.61','6.86','13.034','24.8']:
+            templateEdge[complexity][value1] = {}
+            for value2 in ['increase', 'decrease']:
+                templateEdge[complexity][value1][value2] = {}
+                iteration += 1
+                for value3 in ['0-0']:
+                    templateEdge[complexity][value1][value2][value3]= {}
+                    for value4 in ['both']:
+                        templateEdge[complexity][value1][value2][value3][value4] = {}
+
+                        ref = {}
+                        tar = {}
+                        ref['id'] = group[iteration]["idRef"]
+                        tar['id'] = group[iteration]["idTar"]
+
+                        if ( value1 == '1'):
+                            ref['speed'] = speed[0]
+                            tar['speed'] = speed[0]
+                        elif ( value1 == '1.9'):
+                            ref['speed'] = speed[1]
+                            tar['speed'] = speed[1]
+                        elif ( value1 == '3.61'):
+                            ref['speed'] = speed[2]
+                            tar['speed'] = speed[2]
+                        elif ( value1 == '6.81'):
+                            ref['speed'] = speed[3]
+                            tar['speed'] = speed[3]
+                        elif ( value1 == '13.034'):
+                            ref['speed'] = speed[4]
+                            tar['speed'] = speed[4]
+                        elif ( value1 == '24.8'):
+                            ref['speed'] = speed[5]
+                            tar['speed'] = speed[5]
+
+                        ref['color'] = "#000000"
+                        tar['color'] = "#000000"
+
+                        templateEdge[complexity][value1][value2][value3][value4]["reference"] = ref
+                        templateEdge[complexity][value1][value2][value3][value4]["target"] = tar
+
+    saveEdges(templateEdge, path, '/edgesJND-isoluminant.json')
 
 firstPart()

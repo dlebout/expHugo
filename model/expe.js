@@ -19,17 +19,17 @@ Expe.prototype.set_infos = function () {
   this.practice = this.array_expe[this.index_reader].practice;
 
   this.graph = this.array_expe[this.index_reader].graph;
-  this.distance = this.array_expe[this.index_reader].distance;
+  this.replication = this.array_expe[this.index_reader].replication;
   this.speed_reference = this.array_expe[this.index_reader].speed_reference;
   this.speed_target = this.array_expe[this.index_reader].speed_target;
   this.luminance_pair = this.array_expe[this.index_reader].luminance_pair;
   this.assign_to = this.array_expe[this.index_reader].assign_to;
 
   this.dataSet = "data/speed_luminance_achromatic/graph.json"
-  this.edge = "data/speed_luminance_achromatic/edgesUS.json"
+  this.edge = "data/speed_luminance_achromatic/edgesJND.json"
 
   this.edgeOption = [
-    this.distance,
+    this.replication,
     this.speed_reference,
     this.speed_target,
     this.luminance_pair,
