@@ -103,7 +103,7 @@
     <div id="count_down">   </div>
 
     <div id="number_trial">
-      <span>Trial : <%= trial %> / 28</span><br/>
+      <span>Trial : <%= trial %> / 52</span><br/>
       <span>User : <%= id_user %> </span>
     </div>
       <div class="clear"></div>
@@ -158,9 +158,9 @@ var flownet_edges;
 var pressSpaceBar = false
 var start,end;
 
-if ( edgeOption[2] === "inferior"){
+if ( edgeOption[1] === "decrease"){
  d3.select("#increaseDecrease").text("decrease ")
-}else{
+}else if ( edgeOption[1] === "increase"){
  d3.select("#increaseDecrease").text("increase ")
 }
 
@@ -168,7 +168,7 @@ getEdges()
 
 function getEdges(){
   $.get( edge_path, function(dataEdge) {
-    edgesExp = dataEdge[edgeOption[0]][edgeOption[1]][edgeOption[2]][edgeOption[3]][edgeOption[4]]
+    edgesExp = dataEdge[edgeOption[0]][edgeOption[1]][edgeOption[2]]
     loadGraph()
   });
 }
@@ -176,6 +176,7 @@ function getEdges(){
 function loadGraph(){
   $.get( data_path, function(data) {
     graph = JSON.parse(JSON.stringify(data));
+    console.log(graph);
     for (var i = 0; i < graph.links.length; i++) {
       graph.links[i].special = false;
     }
@@ -252,7 +253,8 @@ function showGraph(){
       d3.select('#popup1').style("display","none");
   });
    $( "#next_trial" ).click(function() {
-		 send_data();
+     if (!pressSpaceBar) return
+      send_data()
    });
 
 function createLinkReferenceLabel(){
@@ -309,7 +311,7 @@ function createLinkReferenceLabel(){
    function createLinkModular(){
      var divide = 20
      var newSpeed = 0
-     if ( edgeOption[2] === "superior"){
+     if ( edgeOption[1] === "increase"){
        switch(graph.links[index_edge_reference].speed){
         case 1:
           newSpeed = (1.9-1)/divide
@@ -330,7 +332,7 @@ function createLinkReferenceLabel(){
           newSpeed = (50-24.8)/divide
           break;
        }
-    }else if ( edgeOption[2] === "inferior"){
+    }else if ( edgeOption[1] === "decrease"){
        switch(graph.links[index_edge_reference].speed){
         case 1:
           newSpeed = (1-0.5)/divide
