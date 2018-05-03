@@ -7,6 +7,7 @@ var Expe = function (array) {
 
     this.graph = "";
     this.edges = "";
+    this.trial = 0;
 }
 /****** PERMET DE PASSER AU TRIAL SUIVANT ********/
 Expe.prototype.set_new_state = function (state) {
@@ -15,25 +16,21 @@ Expe.prototype.set_new_state = function (state) {
 }
 
 Expe.prototype.set_infos = function () {
-  this.trial = this.array_expe[this.index_reader].trial;
-  this.practice = this.array_expe[this.index_reader].practice;
+  this.trial = this.array_expe[this.index_reader].Trial;
+  this.practice = this.array_expe[this.index_reader].Practice;
+  this.block = this.array_expe[this.index_reader].Block;
 
-  this.graph = this.array_expe[this.index_reader].graph;
-  this.replication = this.array_expe[this.index_reader].replication;
-  this.speed_reference = this.array_expe[this.index_reader].speed_reference;
-  this.speed_target = this.array_expe[this.index_reader].speed_target;
-  this.luminance_pair = this.array_expe[this.index_reader].luminance_pair;
-  this.assign_to = this.array_expe[this.index_reader].assign_to;
+  this.speed_reference = this.array_expe[this.index_reader].Speed;
+  this.speed_target = this.array_expe[this.index_reader].Action;
+  this.luminance_pair = this.array_expe[this.index_reader].Luminance;
 
-  this.dataSet = "data/speed_luminance_achromatic/graph.json"
-  this.edge = "data/speed_luminance_achromatic/edgesJND.json"
+  this.dataSet = "data/speed_luminance_achromatic/graph-"+ "luminant" +".json"
+  this.edge = "data/speed_luminance_achromatic/edgesJND-"+ "luminant" +".json"
 
   this.edgeOption = [
-    this.replication,
     this.speed_reference,
     this.speed_target,
-    this.luminance_pair,
-    this.assign_to
+    this.luminance_pair
   ]
 
   console.log(this.dataSet);
