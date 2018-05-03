@@ -114,6 +114,7 @@ app.get('/read_csv', function (req, res) {
     });
     reader.on('end', function() {
       endofPractice = false
+
         array = return_by_id(array);
         expe = new Expe(array);
         create_db_expe();
@@ -174,7 +175,7 @@ app.post('/store_data_counting_group', function (req, res) {
   if (task_number  > expe.max_trial - 2){
     res.end(JSON.stringify({status:"OK", redirection:"../../../application/finish"}));
   }
-  else if (task_number  == 4 && endofPractice === false){
+  else if (task_number  == 3 && endofPractice === false){
     endofPractice = true
     res.end(JSON.stringify({status:"OK", redirection:"../../../application/practice"}));
   }else{
@@ -268,20 +269,16 @@ function create_db_expe(staticVariables){
   db_expe = csv.createCsvStreamWriter(fs.createWriteStream('db/logs/log_user_'+id_utilisateur+'_'+date+'.csv'), { separator : ';' });
 
 
-  header = ["participant_id",
+  header = ["participant",
   	"trial",
     "practice",
-    "graph",
+    "speed",
+    "action",
     "luminance",
-    "speed_reference",
-    "speed_target",
-    "luminance_pair",
-    "assign_to",
     "completion_time",
     "edgeA_speed", "edgeA_color",
     "edgeB_speed", "edgeB_color",
-    "edgeB_original_speed",	"edgeB_original_color",
-    "difference_speed", "difference_luminance",
+    "difference_speed",
     "keyPressedList"
   ]
 
@@ -305,17 +302,13 @@ function add_to_table(value){
   res = [id_utilisateur,
         expe.trial,
         expe.practice,
-        expe.graph,
-        expe.luminance,
         expe.speed_reference,
         expe.speed_target,
         expe.luminance_pair,
-        expe.assign_to,
         completionTime,
         graphA.speed, graphA.color,
         graphB.speed, graphB.color,
-        graphBClean.speed, graphBClean.color,
-        graphB.speed-graphA.speed, d3.hsl(graphA.color).l-d3.hsl(graphB.color).l ,
+        graphB.speed-graphA.speed, //d3.hsl(graphA.color).l-d3.hsl(graphB.color).l ,
         keyList
       ]
 
@@ -346,7 +339,7 @@ function add_user_to_infos(id, name, hand, date, age, gender){
 function return_by_id(array){
   var tab = [];
     for (var i=0; i<array.length; i++){
-      if (parseInt(array[i].participant_id) == id_utilisateur){
+      if (parseInt(array[i].Participant) == id_utilisateur){
         tab.push(array[i])
       }
     }

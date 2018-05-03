@@ -1,10 +1,7 @@
 import json
-import networkx as nx
 import matplotlib.pyplot as plt
 import os
 import math
-from networkx.readwrite import json_graph
-from networkx.drawing.nx_agraph import graphviz_layout
 import random
 
 
@@ -32,29 +29,17 @@ patternDefault = [0.0]
 height = [2,5,8,11,14,17]
 heightDefault = [5]
 
-#colorBlue = ["#eff3ff","#c6dbef","#9ecae1","#6baed6","#3182bd","#08519c"]
-#colorRed = ["#fee5d9","#fcbba1","#fc9272","#fb6a4a","#de2d26","#a50f15"]
-#colorGreen = ["#edf8e9","#c7e9c0","#a1d99b","#74c476","#31a354","#006d2c"]
-#colorBlue = ["#f7fbff","#deebf7","#c6dbef","#9ecae1","#6baed6","#4292c6","#2171b5","#08519c","#08306b"]
-#colorBlue = ["#f7fbff","#deebf7","#c6dbef","#9ecae1","#6baed6","#4292c6","#2171b5","#08519c","#08306b"]
-#colorGreen = ["#f7fcf5","#e5f5e0","#c7e9c0","#a1d99b","#74c476","#41ab5d","#238b45","#006d2c","#00441b"]
-#colorRed = ["#fff5f0","#fee0d2","#fcbba1","#fc9272","#fb6a4a","#ef3b2c","#cb181d","#a50f15","#67000d"]
 
 #                           85%        74%      59%        45%      32%         15%
 luminance_achromatic = ["#d9d9d9","#bdbdbd","#969696","#737373","#525252", "#252525"]
-colorDefault = ["black"]
 
-remove = [[],[4,7],[8,5],[1,6],[2,7],[3,8],[1,4],[2,5],[3,6]]
-
-# speed = [1.2,2.2,4,7.2,13,23.4]
-
-def saveGraph(d, path):
+def saveGraph(d, path, name):
     try:
         os.makedirs(path)
     except OSError:
         pass
     #print path
-    json.dump(d, open(path + '/graph.json','w'))
+    json.dump(d, open(path + name,'w'))
 def saveEdges(d, path, name):
     try:
         os.makedirs(path)
@@ -82,34 +67,6 @@ def shuffleAndDifferent(array, limit):
     if not diff :
         shuffleAndDifferent(array, limit+1)
 
-def chooseLowJND(array):
-    return ([array[1],array[0]],[array[1],array[1]],[array[1],array[2]])
-def chooseMediumJND(array):
-    return ([array[3],array[1]],[array[2],array[2]],[array[2],array[4]])
-def chooseHighJND(array):
-    return ([array[5],array[3]],[array[4],array[4]],[array[4],array[5]])
-
-def extractRandom(start,end):
-    print start,end
-    return random.uniform(start, end)
-
-def chooseRandomPrimary(array, res, tag1):
-    for i in range(0,18):
-        res.append([array[1], extractRandom(array[0]-(math.fabs(array[0]-array[1])/2),array[0]), tag1, "lower"])
-    for i in range(0,18):
-        res.append([array[1], extractRandom(array[1], array[2]+(math.fabs(array[1]+array[2])/2)), tag1, "higher"])
-    return res
-
-def chooseRandomSecondaryClose9(arr):
-    return [[arr[1],arr[0], "low", "lower"],[arr[1],arr[1], "low", "same"],[arr[1],arr[2], "low", "higher"], \
-    [arr[4],arr[3], "medium", "lower"],[arr[4],arr[4], "medium", "same"],[arr[4],arr[5], "medium", "higher"], \
-    [arr[7],arr[6], "high", "lower"],[arr[7],arr[7], "high", "same"],[arr[7],arr[8], "high", "higher"]]
-
-def chooseRandomSecondaryClose6(arr):
-    return [[arr[1],arr[0], "low", "lower"],[arr[1],arr[1], "low", "same"],[arr[1],arr[2], "low", "higher"], \
-    [arr[3],arr[2], "medium", "lower"],[arr[3],arr[3], "medium", "same"],[arr[3],arr[4], "medium", "higher"], \
-    [arr[4],arr[3], "high", "lower"],[arr[4],arr[4], "high", "same"],[arr[4],arr[5], "high", "higher"]]
-
 def crossMotion(speedA, freqA, colorA, sizeA):
     res = []
     for s in speedA:
@@ -127,48 +84,22 @@ def createGraphIdentity(templateGraph):
 
 def firstPart():
     G = createGraphIdentity(1)
-    graphCreation(G, speed,frequencyDefault,luminance_achromatic,patternDefault, "./speed_luminance_achromatic")
+    graphCreation(G, speed,frequencyDefault,luminance_achromatic,patternDefault, "./speed_luminance_achromatic", '/graph-luminant.json')
+
+
     group = createGroupArray()
     random.shuffle(group)
-    group = group[:24]
-    edgesCreationJND(group, speed, luminance_achromatic, "./speed_luminance_achromatic")
-    #edgesCreationJNDiso(G, speed, luminance_achromatic, "./speed_luminance_achromatic")
-    edgesCreationUS(group, speedUS, luminance_achromatic, "./speed_luminance_achromatic")
+    random.shuffle(group)
+    random.shuffle(group)
+    random.shuffle(group)
+    group = group[:48]
 
-    #G,edgesLayoutFixed = createGraphIdentity(1)
-    #graphCreation(G,edgesLayoutFixed, speed,frequencyDefault,colorBlue,patternDefault, "../data/Speed_LightnessBlue")
-    #edgesCreation(G,edgesLayoutFixed, speed, "speed", colorBlue, "color", frequencyDefault[0], "frequency", patternDefault[0], "pattern", "../data/Speed_LightnessBlue")
-
-    #G,edgesLayoutFixed = createGraphIdentity(1)
-    #graphCreation(G,edgesLayoutFixed,speed,frequencyDefault,colorGreen,patternDefault, "../data/Speed_LightnessGreen")
-    #edgesCreation(G,edgesLayoutFixed, speed, "speed", colorGreen, "color", frequencyDefault[0], "frequency", patternDefault[0], "pattern", "../data/Speed_LightnessGreen")
-
-    #G,edgesLayoutFixed = createGraphIdentity(1)
-    #graphCreation(G,edgesLayoutFixed,speed,frequencyDefault,colorRed,patternDefault, "../data/Speed_LightnessRed")
-    #edgesCreation(G,edgesLayoutFixed, speed, "speed", colorRed, "color", frequencyDefault[0], "frequency", patternDefault[0], "pattern", "../data/Speed_LightnessRed")
-
-    #G,edgesLayoutFixed = createGraphIdentity(1)
-    #graphCreation(G,edgesLayoutFixed, speed,frequencyDefault,colorDefault,pattern, "../data/Speed_Size")
-    #edgesCreation(G,edgesLayoutFixed, speed, "speed", pattern, "pattern", colorDefault[0], "color", frequencyDefault[0], "frequency" ,"../data/Speed_Size")
-
-    #G,edgesLayoutFixed = createGraphIdentity(1)
-    #graphCreation(G,edgesLayoutFixed, speedDefault,frequency,colorBlue,patternDefault, "../data/Frequency_LightnessBlue")
-    #edgesCreation(G,edgesLayoutFixed, frequency,"frequency", colorBlue, "color", speedDefault[0], "speed", patternDefault[0], "pattern", "../data/Frequency_LightnessBlue")
-
-    #G,edgesLayoutFixed = createGraphIdentity(1)
-    #graphCreation(G,edgesLayoutFixed, speedDefault,frequency,colorGreen,patternDefault, "../data/Frequency_LightnessGreen")
-    #edgesCreation(G,edgesLayoutFixed, frequency,"frequency", colorGreen, "color", speedDefault[0], "speed", patternDefault[0], "pattern", "../data/Frequency_LightnessGreen")
-
-    #G,edgesLayoutFixed = createGraphIdentity(1)
-    #graphCreation(G,edgesLayoutFixed, speedDefault,frequency,colorRed,patternDefault, "../data/Frequency_LightnessRed")
-    #edgesCreation(G,edgesLayoutFixed, frequency,"frequency", colorRed, "color", speedDefault[0], "speed", patternDefault[0], "pattern", "../data/Frequency_LightnessRed")
-
-    #G,edgesLayoutFixed = createGraphIdentity(1)
-    #graphCreation(G,edgesLayoutFixed, speedDefault,frequency,colorDefault,pattern, "../data/Frequency_Size")
-    #edgesCreation(G,edgesLayoutFixed, frequency,"frequency",pattern, "pattern",speedDefault[0],"speed", colorDefault[0], "color", "../data/Frequency_Size")
+    edgesCreationJND(group, speed, luminance_achromatic, "./speed_luminance_achromatic", '/edgesJND-luminant.json' )
+    #edgesCreationUS(group, speedUS, luminance_achromatic, "./speed_luminance_achromatic")
 
 
-def graphCreation(dataLayoutFixed,speedA,frequencyA,colorA,sizeA, path):
+
+def graphCreation(dataLayoutFixed,speedA,frequencyA,colorA,sizeA, path, name):
     res = crossMotion( speedA, frequencyA, colorA, sizeA)
 
     iteration = 0
@@ -184,40 +115,30 @@ def graphCreation(dataLayoutFixed,speedA,frequencyA,colorA,sizeA, path):
         dataLayoutFixed["links"][iteration]["spacing"] = "30"
         iteration += 1
 
-    saveGraph(dataLayoutFixed,path)
+    saveGraph(dataLayoutFixed,path, name)
 
     #{"sizeParticule": "10", "target": 27, "OLDSOURCE": 12, "color": "black", "temporal": [0.0], "OLDTARGET": 42, "source": 1, "shape": "rectangle", "frequency": 0.25, "speed": 1, "id": 40}
     #print (speedArray, temporalArray, frequencyArray, colorArray, sizeArray, shapeArray)
-
-def createDirectionArray():
-    direction = []
-    for i in range(0,168):
-        direction.append('same')
-    for i in range(0,168):
-        direction.append('opposed')
-    shuffleAndDifferent(direction,0)
-    return direction
-
 def createGroupArray():
     group = []
     for i in range(1,9):
         jrange = []
         if ( i == 1):
-            jrange = [4,5,6]
+            jrange = [5]
         if ( i == 2):
-            jrange = [5,6,7]
+            jrange = [6]
         if ( i == 3):
-            jrange = [6,7,8]
+            jrange = [7]
         if ( i == 4):
-            jrange = [7,8,1]
+            jrange = [8]
         if ( i == 5):
-            jrange = [8,1,2]
+            jrange = [1]
         if ( i == 6):
-            jrange = [1,2,3]
+            jrange = [2]
         if ( i == 7):
-            jrange = [2,3,4]
+            jrange = [3]
         if ( i == 8):
-            jrange = [3,4,5]
+            jrange = [4]
         for j in jrange:
             xrange = []
             if ( i == 1):
@@ -269,251 +190,19 @@ def createGroupArray():
                     group.append(inter)
     shuffleAndDifferent(group,0)
     return group
-
-def edgesCreationUS(dataLayoutFixed, speed, color, path):
-    direction = createDirectionArray()
-    group = createGroupArray()
+def edgesCreationJND(group, speed, color, path, name):
     templateEdge = {}
-    iteration = 0
-    for complexity in ["near","far"]:
-        templateEdge[complexity] = {}
-        for value1 in ['1','1.9','3.61','6.86','13.034','24.8']:
-            templateEdge[complexity][value1] = {}
-            for value2 in ['inferior', 'superior']:
-                templateEdge[complexity][value1][value2] = {}
-                for value3 in ['85-85','85-74','85-45','85-15','15-15','15-32','15-59']:
-                    templateEdge[complexity][value1][value2][value3]= {}
-                    for value4 in ['reference','target']:
-                        templateEdge[complexity][value1][value2][value3][value4] = {}
-
-                        ref = {}
-                        tar = {}
-
-                        ref['id'] = group[iteration]["idRef"]
-                        tar['id'] = group[iteration]["idTar"]
-
-                        if ( value1 == '1'):
-                            if ( value2 == 'inferior'):
-                                ref['speed'] = speedUS[1]
-                                tar['speed'] = speedUS[0]
-                            elif ( value2 == 'superior'):
-                                ref['speed'] = speedUS[1]
-                                tar['speed'] = speedUS[2]
-                        elif ( value1 == '1.9'):
-                            if ( value2 == 'inferior'):
-                                ref['speed'] = speedUS[2]
-                                tar['speed'] = speedUS[1]
-                            elif ( value2 == 'superior'):
-                                ref['speed'] = speedUS[2]
-                                tar['speed'] = speedUS[3]
-                        elif ( value1 == '3.61'):
-                            if ( value2 == 'inferior'):
-                                ref['speed'] = speedUS[3]
-                                tar['speed'] = speedUS[2]
-                            elif ( value2 == 'superior'):
-                                ref['speed'] = speedUS[3]
-                                tar['speed'] = speedUS[4]
-                        elif ( value1 == '6.86'):
-                            if ( value2 == 'inferior'):
-                                ref['speed'] = speedUS[4]
-                                tar['speed'] = speedUS[3]
-                            elif ( value2 == 'superior'):
-                                ref['speed'] = speedUS[4]
-                                tar['speed'] = speedUS[5]
-                        elif ( value1 == '13.034'):
-                            if ( value2 == 'inferior'):
-                                ref['speed'] = speedUS[5]
-                                tar['speed'] = speedUS[4]
-                            elif ( value2 == 'superior'):
-                                ref['speed'] = speedUS[5]
-                                tar['speed'] = speedUS[6]
-                        elif ( value1 == '24.8'):
-                            if ( value2 == 'inferior'):
-                                ref['speed'] = speedUS[6]
-                                tar['speed'] = speedUS[5]
-                            elif ( value2 == 'superior'):
-                                ref['speed'] = speedUS[6]
-                                tar['speed'] = speedUS[7]
-
-                        if ( value3 == '85-85'):
-                            if ( value4 == 'reference'):
-                                ref['color'] = color[0]
-                                tar['color'] = color[0]
-                            elif ( value4 == 'target'):
-                                ref['color'] = color[0]
-                                tar['color'] = color[0]
-                        elif ( value3 == '85-74'):
-                            if ( value4 == 'reference'):
-                                ref['color'] = color[0]
-                                tar['color'] = color[1]
-                            elif ( value4 == 'target'):
-                                ref['color'] = color[1]
-                                tar['color'] = color[0]
-                        elif ( value3 == '85-45'):
-                            if ( value4 == 'reference'):
-                                ref['color'] = color[0]
-                                tar['color'] = color[3]
-                            elif ( value4 == 'target'):
-                                ref['color'] = color[3]
-                                tar['color'] = color[0]
-                        elif ( value3 == '85-15'):
-                            if ( value4 == 'reference'):
-                                ref['color'] = color[0]
-                                tar['color'] = color[5]
-                            elif ( value4 == 'target'):
-                                ref['color'] = color[5]
-                                tar['color'] = color[0]
-                        elif ( value3 == '15-15'):
-                            if ( value4 == 'reference'):
-                                ref['color'] = color[5]
-                                tar['color'] = color[5]
-                            elif ( value4 == 'target'):
-                                ref['color'] = color[5]
-                                tar['color'] = color[5]
-                        elif ( value3 == '15-32'):
-                            if ( value4 == 'reference'):
-                                ref['color'] = color[5]
-                                tar['color'] = color[4]
-                            elif ( value4 == 'target'):
-                                ref['color'] = color[4]
-                                tar['color'] = color[5]
-                        elif ( value3 == '15-59'):
-                            if ( value4 == 'reference'):
-                                ref['color'] = color[5]
-                                tar['color'] = color[2]
-                            elif ( value4 == 'target'):
-                                ref['color'] = color[2]
-                                tar['color'] = color[5]
-
-
-                        templateEdge[complexity][value1][value2][value3][value4]["reference"] = ref
-                        templateEdge[complexity][value1][value2][value3][value4]["target"] = tar
-
-                        iteration += 1
-    saveEdges(templateEdge, path, '/edgesUS.json')
-def edgesCreationJND(group, speed, color, path):
-    templateEdge = {}
-    iteration = -1
-    for complexity in ["replication1","replication2"]:
-        templateEdge[complexity] = {}
-        for value1 in ['1','1.9','3.61','6.86','13.034','24.8']:
-            templateEdge[complexity][value1] = {}
-            for value2 in ['increase', 'decrease']:
-                templateEdge[complexity][value1][value2] = {}
-                iteration += 1
-                for value3 in ['85-74','85-59','85-45','85-15','15-32','15-45','15-59','45-59','32-74']:
-                    templateEdge[complexity][value1][value2][value3]= {}
-                    for value4 in ['reference','target']:
-                        templateEdge[complexity][value1][value2][value3][value4] = {}
-
-                        ref = {}
-                        tar = {}
-                        print len(group),iteration
-                        ref['id'] = group[iteration]["idRef"]
-                        tar['id'] = group[iteration]["idTar"]
-
-                        if ( value1 == '1'):
-                            ref['speed'] = speed[0]
-                            tar['speed'] = speed[0]
-                        elif ( value1 == '1.9'):
-                            ref['speed'] = speed[1]
-                            tar['speed'] = speed[1]
-                        elif ( value1 == '3.61'):
-                            ref['speed'] = speed[2]
-                            tar['speed'] = speed[2]
-                        elif ( value1 == '6.81'):
-                            ref['speed'] = speed[3]
-                            tar['speed'] = speed[3]
-                        elif ( value1 == '13.034'):
-                            ref['speed'] = speed[4]
-                            tar['speed'] = speed[4]
-                        elif ( value1 == '24.8'):
-                            ref['speed'] = speed[5]
-                            tar['speed'] = speed[5]
-
-                        if ( value3 == '85-59'):
-                            if ( value4 == 'reference'):
-                                ref['color'] = color[0]
-                                tar['color'] = color[2]
-                            elif ( value4 == 'target'):
-                                ref['color'] = color[2]
-                                tar['color'] = color[0]
-                        elif ( value3 == '15-45'):
-                            if ( value4 == 'reference'):
-                                ref['color'] = color[5]
-                                tar['color'] = color[3]
-                            elif ( value4 == 'target'):
-                                ref['color'] = color[3]
-                                tar['color'] = color[5]
-                        elif ( value3 == '32-74'):
-                            if ( value4 == 'reference'):
-                                ref['color'] = color[4]
-                                tar['color'] = color[1]
-                            elif ( value4 == 'target'):
-                                ref['color'] = color[1]
-                                tar['color'] = color[4]
-                        elif ( value3 == '85-74'):
-                            if ( value4 == 'reference'):
-                                ref['color'] = color[0]
-                                tar['color'] = color[1]
-                            elif ( value4 == 'target'):
-                                ref['color'] = color[1]
-                                tar['color'] = color[0]
-                        elif ( value3 == '85-45'):
-                            if ( value4 == 'reference'):
-                                ref['color'] = color[0]
-                                tar['color'] = color[3]
-                            elif ( value4 == 'target'):
-                                ref['color'] = color[3]
-                                tar['color'] = color[0]
-                        elif ( value3 == '85-15'):
-                            if ( value4 == 'reference'):
-                                ref['color'] = color[0]
-                                tar['color'] = color[5]
-                            elif ( value4 == 'target'):
-                                ref['color'] = color[5]
-                                tar['color'] = color[0]
-                        elif ( value3 == '45-59'):
-                            if ( value4 == 'reference'):
-                                ref['color'] = color[3]
-                                tar['color'] = color[2]
-                            elif ( value4 == 'target'):
-                                ref['color'] = color[2]
-                                tar['color'] = color[3]
-                        elif ( value3 == '15-32'):
-                            if ( value4 == 'reference'):
-                                ref['color'] = color[5]
-                                tar['color'] = color[4]
-                            elif ( value4 == 'target'):
-                                ref['color'] = color[4]
-                                tar['color'] = color[5]
-                        elif ( value3 == '15-59'):
-                            if ( value4 == 'reference'):
-                                ref['color'] = color[5]
-                                tar['color'] = color[2]
-                            elif ( value4 == 'target'):
-                                ref['color'] = color[2]
-                                tar['color'] = color[5]
-
-
-                        templateEdge[complexity][value1][value2][value3][value4]["reference"] = ref
-                        templateEdge[complexity][value1][value2][value3][value4]["target"] = tar
-
-    saveEdges(templateEdge, path, '/edgesJND-luminant.json')
-def edgesCreationJNDiso(group, speed, color, path):
-    templateEdge = {}
-    iteration = -1
+    iteration = 1
     for complexity in ["replication1"]:
-        templateEdge[complexity] = {}
-        for value1 in ['1','1.9','3.61','6.86','13.034','24.8']:
-            templateEdge[complexity][value1] = {}
+        for value1 in ['1','3.61','13.034']:
+            templateEdge[value1] = {}
             for value2 in ['increase', 'decrease']:
-                templateEdge[complexity][value1][value2] = {}
-                iteration += 1
-                for value3 in ['0-0']:
-                    templateEdge[complexity][value1][value2][value3]= {}
-                    for value4 in ['both']:
-                        templateEdge[complexity][value1][value2][value3][value4] = {}
+                templateEdge[value1][value2] = {}
+                for value3 in ['0','11','40','70']:
+                    iteration += 1
+                    templateEdge[value1][value2][value3]= {}
+                    for value4 in ['reference']:
+                        templateEdge[value1][value2][value3] = {}
 
                         ref = {}
                         tar = {}
@@ -523,28 +212,45 @@ def edgesCreationJNDiso(group, speed, color, path):
                         if ( value1 == '1'):
                             ref['speed'] = speed[0]
                             tar['speed'] = speed[0]
-                        elif ( value1 == '1.9'):
-                            ref['speed'] = speed[1]
-                            tar['speed'] = speed[1]
                         elif ( value1 == '3.61'):
                             ref['speed'] = speed[2]
                             tar['speed'] = speed[2]
-                        elif ( value1 == '6.81'):
-                            ref['speed'] = speed[3]
-                            tar['speed'] = speed[3]
                         elif ( value1 == '13.034'):
                             ref['speed'] = speed[4]
                             tar['speed'] = speed[4]
-                        elif ( value1 == '24.8'):
-                            ref['speed'] = speed[5]
-                            tar['speed'] = speed[5]
 
-                        ref['color'] = "#000000"
-                        tar['color'] = "#000000"
+                        if ( value3 == '0'):
+                            if ( value4 == 'reference'):
+                                ref['color'] = color[5]
+                                tar['color'] = color[5]
+                            elif ( value4 == 'target'):
+                                ref['color'] = color[2]
+                                tar['color'] = color[0]
+                        elif ( value3 == '11'):
+                            if ( value4 == 'reference'):
+                                ref['color'] = color[5]
+                                tar['color'] = color[4]
+                            elif ( value4 == 'target'):
+                                ref['color'] = color[3]
+                                tar['color'] = color[5]
+                        elif ( value3 == '40'):
+                            if ( value4 == 'reference'):
+                                ref['color'] = color[5]
+                                tar['color'] = color[2]
+                            elif ( value4 == 'target'):
+                                ref['color'] = color[1]
+                                tar['color'] = color[4]
+                        elif ( value3 == '70'):
+                            if ( value4 == 'reference'):
+                                ref['color'] = color[5]
+                                tar['color'] = color[0]
+                            elif ( value4 == 'target'):
+                                ref['color'] = color[1]
+                                tar['color'] = color[0]
 
-                        templateEdge[complexity][value1][value2][value3][value4]["reference"] = ref
-                        templateEdge[complexity][value1][value2][value3][value4]["target"] = tar
 
-    saveEdges(templateEdge, path, '/edgesJND-isoluminant.json')
+                        templateEdge[value1][value2][value3]["reference"] = ref
+                        templateEdge[value1][value2][value3]["target"] = tar
+    saveEdges(templateEdge, path, name)
 
 firstPart()
