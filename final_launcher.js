@@ -273,13 +273,13 @@ function create_db_expe(staticVariables){
   	"trial",
     "practice",
     "speed",
+    "delta_luminance",
     "action",
-    "luminance",
     "completion_time",
     "edgeA_speed", "edgeA_color",
     "edgeB_speed", "edgeB_color",
-    "difference_speed",
-    "keyPressedList"
+    "delta_speed",
+    "observation"
   ]
 
   console.log('Found file');
@@ -302,13 +302,13 @@ function add_to_table(value){
   res = [id_utilisateur,
         expe.trial,
         expe.practice,
-        expe.speed_reference,
-        expe.speed_target,
+        (Number(expe.speed_reference)*12*23.5)/100,
         expe.luminance_pair,
+        expe.speed_target,
         completionTime,
-        graphA.speed, graphA.color,
-        graphB.speed, graphB.color,
-        graphB.speed-graphA.speed, //d3.hsl(graphA.color).l-d3.hsl(graphB.color).l ,
+        (Number(graphA.speed)*12*23.5)/100, graphA.color,
+        (Number(graphB.speed)*12*23.5)/100, graphB.color,
+        (Number(graphB.speed-graphA.speed)*12*23.5)/100, //d3.hsl(graphA.color).l-d3.hsl(graphB.color).l ,
         keyList
       ]
 

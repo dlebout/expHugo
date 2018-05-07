@@ -5,10 +5,11 @@
   <script src="lib/flownet_SVG.js"></script>
 
   <div class="instruction">
-    <h1>INSTRUCTION</h1></br></br>
-    <p>This experiment aims to observe how the perception of motion of flows of particles are impacted by luminance variation.</p>
-    <p>Below you can see the differents speed level that you will need to focus on:</p>
-    </br>
+    <h1>INSTRUCTIONS</h1></br></br>
+    <p>This experiment aims at observing whether variations in luminance might impact perception of motion of particles flowing along edges in a graph.</p>
+
+    <!-- <p>Below you can see the differents speed level that you will need to focus on:</p> -->
+    <!-- </br>
     <div id=mainMotionDiv> </div>
     <span class=leftSpan> Low value</span> <span class=rightSpan> High value</span>
     </br></br>
@@ -18,19 +19,20 @@
     <div id=secondMotionDiv> </div>
     <span class=leftSpan> Low value</span> <span class=rightSpan> High value</span>
     </br></br>
-    </br></br>
-    <p> During each trial a graph will be displayed, this graph will contain two edges that will be annotated:
-      <strong>A</strong> for the <strong>edge of reference</strong> and <strong>B</strong> for the <strong>edge that you will modify</strong>.</br></br>
-      Starting each trial, the value of the speed of edge B  <strong>is equal to</strong> the value of edge A.
-      The goal of each trial is,  <strong>depending of the instruction</strong>, to  <strong>decrease or increase</strong> the speed of the particles of edge B
+    </br></br> -->
+    <p> During each trial, a graph will be displayed. Two edges will be tagged as <strong>A</strong> and <strong>B</strong>. These are the edges that you will have to focus on.
+      <strong>A</strong> is the <strong>reference edge</strong> and <strong>B</strong> is the <strong>response edge</strong>.</br></br>
+      At the trial start, the speed of edge <strong>B</strong> is equal to that of edge <strong>A</strong>. Pressing the space bar key modifies the speed of edge <strong>B</strong>.
+      Press Space bar <strong>until you notice a difference</strong>. Once you notice a difference, click button <strong>B is faster than A</strong> or <strong>B is slower than A</strong> depending on your perception of the relative motion speeds.
+      <!-- The goal of each trial is,  <strong>depending of the instruction</strong>, to  <strong>decrease or increase</strong> the speed of the particles of edge B
       <strong>until</strong> you notice a <strong>difference</strong> with the speed of the particles of edge A.</br></br>
       To do so you will have two button: <strong>"Increase Motion"</strong> that you can call by pressing <strong>right arrow key</strong>
       and <strong>"Decrease Motion"</strong> that you can call by pressing <strong>left arrow key</strong>. Once you are satisfied of the result you can press enter
-      to got to the next trial.
+      to got to the next trial. -->
     </p>
     </br>
     </br>
-  	<button id="submit" type="submit" class="flat_button">Start training session</button>
+    <button id="submit" type="submit" class="flat_button">Start training session</button>
 
   </div>
 
@@ -94,7 +96,7 @@
       .particles('color', "black")
       .particles('size', 8)
 
-      .start(0);
+      //.start(0);
 
     d3.select("#secondMotionSpan").append('text').text(" the Luminance").style('font-weight', 'bold')
     d3.select("#secondMotionDiv").append('svg').attr('id', "secondMotionSVG").attr('width', 1500).attr('height', 40)
@@ -110,9 +112,9 @@
 
   // J'ajoute plus un a la redirection
   $( "#submit" ).click(function() {
-  	var URL = window.location.href;
-  	var res = URL.split("/");
-  	window.location = '/application/count_groups/0';
+    var URL = window.location.href;
+    var res = URL.split("/");
+    window.location = '/application/count_groups/0';
 
   });
   </script>
