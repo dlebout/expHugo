@@ -24,8 +24,8 @@ Expe.prototype.set_infos = function () {
   this.speed_target = this.array_expe[this.index_reader].Action;
   this.luminance_pair = this.array_expe[this.index_reader].Luminance;
 
-  this.dataSet = "data/speed_luminance_achromatic/graph-"+ "luminant" +".json"
-  this.edge = "data/speed_luminance_achromatic/edgesJND-"+ "luminant" +".json"
+  this.dataSet = "data/edges_layout"
+  this.edge = "./data/edges_layout/edgesJND-"+ "luminant" +".json"
 
   this.edgeOption = [
     this.speed_reference,

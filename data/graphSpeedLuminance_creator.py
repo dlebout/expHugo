@@ -76,46 +76,33 @@ def crossMotion(speedA, freqA, colorA, sizeA):
                     res.append([s,f,c,si])
     return res
 
-def createGraphIdentity(templateGraph):
-    with open("graph_layout/graph.json" ) as data_file:
-        print 'sucess layout'
-        dataLayoutFixed = json.load(data_file)
-        return dataLayoutFixed
-
 def firstPart():
-    G = createGraphIdentity(1)
-    graphCreation(G, speed,frequencyDefault,luminance_achromatic,patternDefault, "./speed_luminance_achromatic", '/graph-luminant.json')
-
-
-    group = createGroupArray()
-    random.shuffle(group)
-    random.shuffle(group)
-    random.shuffle(group)
-    random.shuffle(group)
-    group = group[:48]
-
-    edgesCreationJND(group, speed, luminance_achromatic, "./speed_luminance_achromatic", '/edgesJND-luminant.json' )
+    graphCreation(speed,frequencyDefault,luminance_achromatic,patternDefault, "./edges_layout")
+    edgesCreationJND( speed, luminance_achromatic, "./edges_layout", '/edgesJND-luminant.json' )
     #edgesCreationUS(group, speedUS, luminance_achromatic, "./speed_luminance_achromatic")
 
 
 
-def graphCreation(dataLayoutFixed,speedA,frequencyA,colorA,sizeA, path, name):
-    res = crossMotion( speedA, frequencyA, colorA, sizeA)
-
-    iteration = 0
-    dataLayoutFixed["links"][iteration]["id"]
-    for n in range(0,len(dataLayoutFixed["links"])):
-        print dataLayoutFixed["links"][iteration]["id"]
-        if ( iteration%len(res) == 0):
-            shuffleAndDifferent(res, 0)
-        dataLayoutFixed["links"][iteration]["frequency"] = res[iteration%len(res)][1]
-        dataLayoutFixed["links"][iteration]["speed"] = res[iteration%len(res)][0]
-        dataLayoutFixed["links"][iteration]["color"] = res[iteration%len(res)][2]
-        dataLayoutFixed["links"][iteration]["pattern"] = res[iteration%len(res)][3]
-        dataLayoutFixed["links"][iteration]["spacing"] = "30"
-        iteration += 1
-
-    saveGraph(dataLayoutFixed,path, name)
+def graphCreation(speedA,frequencyA,colorA,sizeA, path):
+    for indexA in range(1,9):
+        res = crossMotion( speedA, frequencyA, colorA, sizeA)
+        for indexB in range(1,4):
+            dataLayoutFixed = 0
+            with open("edges_layout/graph" + str(indexA) + "_" + str(indexB) + ".json" ) as data_file:
+                print "edges_layout/graph" + str(indexA) + "_" + str(indexB) + ".json"
+                dataLayoutFixed = json.load(data_file)
+            iteration = 0
+            dataLayoutFixed["links"][iteration]["id"]
+            for n in range(0,len(dataLayoutFixed["links"])):
+                if ( iteration%len(res) == 0):
+                    shuffleAndDifferent(res, 0)
+                dataLayoutFixed["links"][iteration]["frequency"] = res[iteration%len(res)][1]
+                dataLayoutFixed["links"][iteration]["speed"] = res[iteration%len(res)][0]
+                dataLayoutFixed["links"][iteration]["color"] = res[iteration%len(res)][2]
+                dataLayoutFixed["links"][iteration]["pattern"] = res[iteration%len(res)][3]
+                dataLayoutFixed["links"][iteration]["spacing"] = "30"
+                iteration += 1
+            saveGraph(dataLayoutFixed,path, "/graph" + str(indexA) + "_" + str(indexB) + ".json")
 
     #{"sizeParticule": "10", "target": 27, "OLDSOURCE": 12, "color": "black", "temporal": [0.0], "OLDTARGET": 42, "source": 1, "shape": "rectangle", "frequency": 0.25, "speed": 1, "id": 40}
     #print (speedArray, temporalArray, frequencyArray, colorArray, sizeArray, shapeArray)
@@ -190,11 +177,20 @@ def createGroupArray():
                     group.append(inter)
     shuffleAndDifferent(group,0)
     return group
-def edgesCreationJND(group, speed, color, path, name):
+
+def edgesCreationJND(speed, color, path, name):
+    graphName = []
+    for indexA in range(1,9):
+        for indexB in range(1,4):
+            graphName.append("/graph" + str(indexA) + "_" + str(indexB) + ".json")
+    shuffleAndDifferent(graphName,0)
+    shuffleAndDifferent(graphName,0)
+    shuffleAndDifferent(graphName,0)
+
     templateEdge = {}
     iteration = 1
     for complexity in ["replication1"]:
-        for value1 in ['1','3.61','13.034']:
+        for value1 in ['1.9','6.86','13.034']:
             templateEdge[value1] = {}
             for value2 in ['increase', 'decrease']:
                 templateEdge[value1][value2] = {}
@@ -206,18 +202,28 @@ def edgesCreationJND(group, speed, color, path, name):
 
                         ref = {}
                         tar = {}
-                        ref['id'] = group[iteration]["idRef"]
-                        tar['id'] = group[iteration]["idTar"]
 
-                        if ( value1 == '1'):
-                            ref['speed'] = speed[0]
-                            tar['speed'] = speed[0]
-                        elif ( value1 == '3.61'):
-                            ref['speed'] = speed[2]
-                            tar['speed'] = speed[2]
+                        if ( value1 == '1.9'):
+                            if (value2 == 'increase'):
+                                ref['speed'] = 1.9
+                                tar['speed'] = 0.55
+                            elif ( value2 == 'decrease'):
+                                ref['speed'] = 1.9
+                                tar['speed'] = 3.61
+                        elif ( value1 == '6.86'):
+                            if (value2 == 'increase'):
+                                ref['speed'] = 6.86
+                                tar['speed'] = 3.61
+                            elif ( value2 == 'decrease'):
+                                ref['speed'] = 6.86
+                                tar['speed'] = 13.034
                         elif ( value1 == '13.034'):
-                            ref['speed'] = speed[4]
-                            tar['speed'] = speed[4]
+                            if (value2 == 'increase'):
+                                ref['speed'] = 13.034
+                                tar['speed'] = 6.86
+                            elif ( value2 == 'decrease'):
+                                ref['speed'] = 13.034
+                                tar['speed'] = 24.8
 
                         if ( value3 == '0'):
                             if ( value4 == 'reference'):
@@ -248,9 +254,14 @@ def edgesCreationJND(group, speed, color, path, name):
                                 ref['color'] = color[1]
                                 tar['color'] = color[0]
 
-
+                        if ( iteration%24 == 0):
+                            shuffleAndDifferent(graphName,0)
+                            shuffleAndDifferent(graphName,0)
+                            shuffleAndDifferent(graphName,0)
                         templateEdge[value1][value2][value3]["reference"] = ref
                         templateEdge[value1][value2][value3]["target"] = tar
+                        templateEdge[value1][value2][value3]["graph"] = graphName[iteration%24]
+
     saveEdges(templateEdge, path, name)
 
 firstPart()
