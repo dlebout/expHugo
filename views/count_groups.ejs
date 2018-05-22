@@ -123,10 +123,10 @@
       <button id="increaseMotion" class="motion_button"> Increase </button><br/>
     </div> -->
     <div class="number_groups">
-      <span class="span"> Press Space bar to modify the motion speed on edge <strong>B</strong>.</span><br/>
-      <span class="span"> Once you perceive the speed of <strong>A</strong> and <strong>B</strong> as <strong>similar</strong>, click on the button "next trial" to express your appreciation:</span><br/><br/>
+      <span class="span"> Press <strong>left arrow key</strong> to <strong>decrease</strong> the motion speed on edge <strong>B</strong> or press <strong>right arrow key</strong> to <strong>increase</strong> the motion speed on edge <strong>B</strong>.</span><br/>
+      <span class="span"> Once you perceive the motion speed on edges <strong>A</strong> and <strong>B</strong> as <strong>similar</strong>, click on the button "next trial" to express your appreciation:</span><br/><br/>
       <br/><br/><br/><br/>
-      <button style="margin-left: 200px;" id="decreaseMotion" class="motion_button"> next trial </button>
+      <button style="margin-left: 200px; visibility:hidden;" id="decreaseMotion" class="motion_button"> next trial </button>
     </div>
     <!-- <button type="submit" class="flat_button" id="next_trial"> Ok </button><br/> -->
     <span style="margin-left: 1600px;" id="spacePress">Press Enter when ready to start the trial.</span>
@@ -143,6 +143,40 @@
   <link rel="stylesheet" type="text/css" href="lib/expe.css">
   <link rel="stylesheet" type="text/css" href="lib/popup.css">
 	<script>
+
+/*
+1
+2 21
+
+2
+3 11
+3 14
+
+3
+14 19
+3 5
+
+4
+1 19
+18 25
+
+5
+2 21
+
+6
+12 17
+0 1
+12 18
+
+7
+4 16
+3 7
+5 27
+
+8
+5 9
+
+*/
 
 var keyPressed = 0
 var keyPressedList = []
@@ -205,6 +239,19 @@ function loadGraph(){
       }
     }
 
+  for (var i = 0; i < graph.nodes.length; i++) {
+    sou = false
+    tar = false
+    for (var j = 0; j < graph.links.length; j++) {
+      if ( Number(graph.nodes[i].id) === Number(graph.links[j].source) ) sou = true
+      if ( Number(graph.nodes[i].id) === Number(graph.links[j].target) ) tar = true
+    }
+    if ( !sou && !tar ){
+      graph.nodes[i].X = -1000
+      graph.nodes[i].Y = -1000
+    }
+  }
+
     d3.select("#visFrame").append('svg').attr('id', "visFrameSVG").attr('width', 1500).attr('height', 1300).style("background", "#ffffff")
         flownet_graph = flownet.graph("#visFrameSVG")
           .nodes(graph.nodes)
@@ -214,10 +261,70 @@ function loadGraph(){
           .node_properties("size", 7)
           .node_properties("x", function(d, i) {return d.X ; })
           .node_properties("y", function(d, i) {return d.Y ;  })
-
+/*
+          .node_properties('label_text', function(d, i){return 'id:'+d.id})
+          .node_properties('label_x', function(d){ return d.X+12})
+          .node_properties('label_y', function(d){ return d.Y-12})
+          .node_properties('label_size', 16)
+          .node_properties('label_font', 'arial')
+          .node_properties('label_color', 'black')
+*/
           .link_properties("color", "#f5F5F5")
           .link_properties("size", 8)
           .link_properties("visibility", "hidden")
+          .link_properties("interpolation", "basis")
+          .link_properties("points", function(d){
+              let centerX,centerY,x1,y1,x2,y2 = 0;
+              let angle,distance = 0;
+              for (var i = 0; i < graph.nodes.length; i++) {
+                if ( Number(graph.nodes[i].id) === Number(d.source) ) {
+                  x1 = graph.nodes[i].X
+                  y1 = graph.nodes[i].Y
+                }
+                if ( Number(graph.nodes[i].id) === Number(d.target) ) {
+                  x2 = graph.nodes[i].X
+                  y2 = graph.nodes[i].Y
+                }
+              }
+
+             if ( y2 < y1 ){
+               distance = Math.sqrt(Math.pow(x1-x2,2)+Math.pow(y1-y2,2))
+               let interAngle = (Math.max(x2,x1)-Math.min(x2,x1))/distance
+               if ( interAngle > 1 ) interAngle = 1
+               if ( interAngle < -1 ) interAngle = -1
+               angle = Math.acos(interAngle) + Math.PI/2
+               if ( x2 > x1 && Math.acos(interAngle) < 0.01 ) { angle += 0 }
+               else if ( x2 > x1 ){ angle += Math.PI/2.8 }
+               angle = angle + Math.PI
+
+               cx1 = x1 + 4 * Math.cos(angle)
+               cy1 = y1 + 4 * Math.sin(angle)
+               cx2 = x1 + 24 * Math.cos(angle)
+               cy2 = y1 + 24 * Math.sin(angle)
+               cx3 = x1 + 40 * Math.cos(angle)
+               cy3 = y1 + 40 * Math.sin(angle)
+             }else{
+               distance = Math.sqrt(Math.pow(x1-x2,2)+Math.pow(y1-y2,2))
+               let interAngle = (x2-x1)/distance
+               if ( interAngle > 1 ) interAngle = 1
+               if ( interAngle < -1 ) interAngle = -1
+               angle = Math.acos(interAngle) + Math.PI/2
+
+               cx1 = x1 + 4 * Math.cos(angle)
+               cy1 = y1 + 4 * Math.sin(angle)
+               cx2 = x1 + 24 * Math.cos(angle)
+               cy2 = y1 + 24 * Math.sin(angle)
+               cx3 = x1 + 40 * Math.cos(angle)
+               cy3 = y1 + 40 * Math.sin(angle)
+             }
+
+             centerX = (x1+x2)/2
+             centerY = (y1+y2)/2
+             cx3 = centerX - (x1-cx3)
+             cy3 = centerY - (y1-cy3)
+
+            return [{x:cx3, y:cy3}]
+          })
 
           .particles('computationalMethod', "Speed-Spacing-RelativePattern")
           .particles('height', 2)
@@ -252,10 +359,14 @@ function loadGraph(){
 }
 
 function showGraph(){
+  d3.select("#decreaseMotion").style("visibility", "visible")
   flownet_graph.node_properties("visibility", "visible")
       .link_properties("visibility", "visible")
       .particles("visibility", "visible")
       .start()
+
+      console.log(data_path);
+
 }
   start = Date.now();
    $( "#close_popup" ).click(function() {
@@ -293,8 +404,8 @@ function createLinkReferenceLabel(){
     angle = angle + Math.PI
     console.log("A", Math.acos(interAngle),angle);
 
-    cx1 = x1 + 16 * Math.cos(angle)
-    cy1 = y1 + 16 * Math.sin(angle)
+    cx1 = x1 + 4 * Math.cos(angle)
+    cy1 = y1 + 4 * Math.sin(angle)
     cx2 = x1 + 24 * Math.cos(angle)
     cy2 = y1 + 24 * Math.sin(angle)
     cx3 = x1 + 40 * Math.cos(angle)
@@ -307,8 +418,8 @@ function createLinkReferenceLabel(){
     angle = Math.acos(interAngle) + Math.PI/2
     console.log("A", Math.acos(interAngle),angle);
 
-    cx1 = x1 + 16 * Math.cos(angle)
-    cy1 = y1 + 16 * Math.sin(angle)
+    cx1 = x1 + 4 * Math.cos(angle)
+    cy1 = y1 + 4 * Math.sin(angle)
     cx2 = x1 + 24 * Math.cos(angle)
     cy2 = y1 + 24 * Math.sin(angle)
     cx3 = x1 + 40 * Math.cos(angle)
@@ -371,8 +482,8 @@ function createLinkReferenceLabel(){
          angle = angle + Math.PI
          console.log("A", Math.acos(interAngle),angle);
 
-         cx1 = x1 + 16 * Math.cos(angle)
-         cy1 = y1 + 16 * Math.sin(angle)
+         cx1 = x1 + 4 * Math.cos(angle)
+         cy1 = y1 + 4 * Math.sin(angle)
          cx2 = x1 + 24 * Math.cos(angle)
          cy2 = y1 + 24 * Math.sin(angle)
          cx3 = x1 + 36 * Math.cos(angle)
@@ -385,8 +496,8 @@ function createLinkReferenceLabel(){
          angle = Math.acos(interAngle) + Math.PI/2
          console.log("B", Math.acos(interAngle),angle);
 
-         cx1 = x1 + 16 * Math.cos(angle)
-         cy1 = y1 + 16 * Math.sin(angle)
+         cx1 = x1 + 4 * Math.cos(angle)
+         cy1 = y1 + 4 * Math.sin(angle)
          cx2 = x1 + 24 * Math.cos(angle)
          cy2 = y1 + 24 * Math.sin(angle)
          cx3 = x1 + 36 * Math.cos(angle)
@@ -448,9 +559,9 @@ function createLinkReferenceLabel(){
         newSpeed = (24.8)/divide
        break;
      }
-     if ( edgeOption[1] === "increase"){
+     if ( keyPressed === 1){
        graph.links[index_edge_target].speed = graph.links[index_edge_target].speed + newSpeed
-     }else if ( edgeOption[1] === "decrease"){
+     }else if ( keyPressed === -1){
        graph.links[index_edge_target].speed = graph.links[index_edge_target].speed - newSpeed
      }
      if (graph.links[index_edge_target].speed < 0.02) graph.links[index_edge_target].speed = 0.05
@@ -520,7 +631,7 @@ function createLinkReferenceLabel(){
    		default:
    	}
     if ( event.keyCode === 32 && pressSpaceBar){
-      createLinkModular()
+      //createLinkModular()
       /*d3.select('#spacePress').remove()
       pressSpaceBar = true
       showGraph()
@@ -528,7 +639,7 @@ function createLinkReferenceLabel(){
     }
   });
 
-/*
+
     document.addEventListener('keydown', (event) => {
       if ( !pressSpaceBar ) return
       const keyName = event.key;
@@ -548,7 +659,7 @@ function createLinkReferenceLabel(){
 
     	}
    });
-*/
+
 	</script>
 
 

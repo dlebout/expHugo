@@ -179,7 +179,9 @@ app.post('/store_data_counting_group', function (req, res) {
     endofPractice = true
     res.end(JSON.stringify({status:"OK", redirection:"../../../application/practice"}));
   }else{
-    res.end(JSON.stringify({status:"OK", redirection:"../../../application/rest/"+task_number}));
+    next_number = (Number(task_number)+1)
+    res.end(JSON.stringify({status:"OK", redirection:"../../../application/count_groups/"+next_number}));
+    //res.end(JSON.stringify({status:"OK", redirection:"../../../application/rest/"+task_number}));
   }
 });
 
