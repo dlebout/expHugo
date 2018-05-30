@@ -1,0 +1,76 @@
+require(ggplot2)
+
+
+
+inc <- subset(total, action == "increase" & practice == "false")
+
+cdata <- aggregate(inc["delta_speed"], by=inc[c("speed","delta_luminance")], FUN=length)
+
+names(cdata)[names(cdata)=="delta_speed"] <- "N"
+
+cdata <- cdata[order(cdata$speed),]
+
+cdata.means <- aggregate(inc[c("edgeB_original_speed","edgeB_speed","delta_speed")], by = inc[c("speed","delta_luminance")], FUN=mean)
+
+cdata <- merge(cdata, cdata.means)
+
+cdata.sd <- aggregate(inc["delta_speed"], by = inc[c("speed","delta_luminance")], FUN=sd)
+
+names(cdata.sd)[names(cdata.sd)=="delta_speed"] <- "delta_speed.sd"
+
+cdata <- merge(cdata, cdata.sd)
+
+cdata$delta_speed.se <- cdata$delta_speed.sd / sqrt(cdata$N)
+
+cdata$speed <- gsub("5.358", "V1= 5.358", cdata$speed)
+cdata$speed <- gsub("19.345200000000002", "V2= 19.3452", cdata$speed)
+cdata$speed <- gsub("36.755880000000005", "V3= 36.75588", cdata$speed)
+
+ggplot(data=cdata, aes(x=speed, y=delta_speed, fill=delta_luminance)) +
+    	geom_bar(stat="identity", position=position_dodge()) + 
+	geom_errorbar(aes(ymin=delta_speed-delta_speed.sd, ymax=delta_speed+delta_speed.sd), width=.2, position=position_dodge(.9)) +
+	scale_fill_brewer(palette="Reds") + 
+	theme_minimal()
+
+anov <- aov(delta_speed ~ speed + delta_luminance + speed:delta_luminance, data = inc)
+summary(anov)
+
+
+
+
+
+dec <- subset(total, action == "decrease" & practice == "false")
+
+cdata <- aggregate(dec["delta_speed"], by=dec[c("speed","delta_luminance")], FUN=length)
+
+names(cdata)[names(cdata)=="delta_speed"] <- "N"
+
+cdata <- cdata[order(cdata$speed),]
+
+cdata.means <- aggregate(dec[c("edgeB_original_speed","edgeB_speed","delta_speed")], by = dec[c("speed","delta_luminance")], FUN=mean)
+
+cdata <- merge(cdata, cdata.means)
+
+cdata.sd <- aggregate(dec["delta_speed"], by = dec[c("speed","delta_luminance")], FUN=sd)
+
+names(cdata.sd)[names(cdata.sd)=="delta_speed"] <- "delta_speed.sd"
+
+cdata <- merge(cdata, cdata.sd)
+
+cdata$delta_speed.se <- cdata$delta_speed.sd / sqrt(cdata$N)
+
+cdata$speed <- gsub("5.358", "V1= 5.358", cdata$speed)
+cdata$speed <- gsub("19.345200000000002", "V2= 19.3452", cdata$speed)
+cdata$speed <- gsub("36.755880000000005", "V3= 36.75588", cdata$speed)
+
+ggplot(data=cdata, aes(x=speed, y=delta_speed, fill=delta_luminance)) +
+    	geom_bar(stat="identity", position=position_dodge()) + 
+	geom_errorbar(aes(ymin=delta_speed-delta_speed.sd, ymax=delta_speed+delta_speed.sd), width=.2, position=position_dodge(.9)) +
+	scale_fill_brewer(palette="Reds") + 
+	theme_minimal()
+
+anov <- aov(delta_speed ~ speed + delta_luminance + speed:delta_luminance, data = dec)
+summary(anov)
+
+
+
