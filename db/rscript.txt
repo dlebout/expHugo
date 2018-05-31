@@ -1,5 +1,6 @@
 require(ggplot2)
-
+total <- rbind(log_user_0_2018_5_22_10h_19mn_28,log_user_2_2018_5_28_9h_22mn_26)
+total <- within(total, delta_speed <- pmax(edgeB_original_speed, edgeB_speed)-pmin(edgeB_original_speed, edgeB_speed))
 
 
 inc <- subset(total, action == "increase" & practice == "false")

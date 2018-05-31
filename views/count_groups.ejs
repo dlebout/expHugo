@@ -102,10 +102,6 @@
 
   <div id="count_down">   </div>
 
-  <div id="number_trial">
-    <span>Trial : <%= trial %> / 52</span><br/>
-    <span>User : <%= id_user %> </span>
-  </div>
     <div class="clear"></div>
     <div class="vis" id="visFrame"></div>
     <div class="visOverlay" id="visFrameOverlay3">
@@ -130,7 +126,10 @@
     </div>
     <!-- <button type="submit" class="flat_button" id="next_trial"> Ok </button><br/> -->
     <span style="margin-left: 1600px;" id="spacePress">Press Enter when ready to start the trial.</span>
-
+    <div id="number_trial">
+      <span>Trial : <%= trial %> / 52</span><br/>
+      <span>User : <%= id_user %> </span>
+    </div>
 
 
 </body>
@@ -301,8 +300,8 @@ function loadGraph(){
                cy1 = y1 + 4 * Math.sin(angle)
                cx2 = x1 + 24 * Math.cos(angle)
                cy2 = y1 + 24 * Math.sin(angle)
-               cx3 = x1 + 40 * Math.cos(angle)
-               cy3 = y1 + 40 * Math.sin(angle)
+               cx3 = x1 + (distance/5) * Math.cos(angle)
+               cy3 = y1 + (distance/5) * Math.sin(angle)
              }else{
                distance = Math.sqrt(Math.pow(x1-x2,2)+Math.pow(y1-y2,2))
                let interAngle = (x2-x1)/distance
@@ -314,8 +313,8 @@ function loadGraph(){
                cy1 = y1 + 4 * Math.sin(angle)
                cx2 = x1 + 24 * Math.cos(angle)
                cy2 = y1 + 24 * Math.sin(angle)
-               cx3 = x1 + 40 * Math.cos(angle)
-               cy3 = y1 + 40 * Math.sin(angle)
+               cx3 = x1 + (distance/5) * Math.cos(angle)
+               cy3 = y1 + (distance/5) * Math.sin(angle)
              }
 
              centerX = (x1+x2)/2
