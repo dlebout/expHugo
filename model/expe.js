@@ -1,7 +1,8 @@
 /** expe.js **/
 
-var Expe = function (array) {
+var Expe = function (array, graphType) {
     this.array_expe = array;
+    this.graphType = graphType
     this.max_trial = array.length;
     this.index_reader = 0;
 
@@ -24,8 +25,8 @@ Expe.prototype.set_infos = function () {
   this.speed_target = this.array_expe[this.index_reader].Action;
   this.luminance_pair = this.array_expe[this.index_reader].Luminance;
 
-  this.dataSet = "data/edges_layout"
-  this.edge = "./data/edges_layout/edgesJND-"+ "luminant" +".json"
+  this.dataSet = "data/edges_layout"+this.graphType
+  this.edge = "./data/edges_layout"+this.graphType+"/edgesJND-"+ "luminant" +".json"
 
   this.edgeOption = [
     this.speed_reference,

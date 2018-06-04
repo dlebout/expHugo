@@ -89,7 +89,7 @@
 
 
 </head>
-<body>
+<body style="background-color:#777;">
   <div id="popup1" class="overlay">
     <div class="popup">
     <!--  <h2>Oupssss .... <i class="fa fa-frown-o" aria-hidden="true"></i></h2> -->
@@ -120,15 +120,15 @@
     </div> -->
     <div class="number_groups">
       <span class="span"> Press <strong>left arrow key</strong> to <strong>decrease</strong> the motion speed on edge <strong>B</strong> or press <strong>right arrow key</strong> to <strong>increase</strong> the motion speed on edge <strong>B</strong>.</span><br/>
-      <span class="span"> Once you perceive the motion speed on edges <strong>A</strong> and <strong>B</strong> as <strong>similar</strong>, click on the button "next trial" to express your appreciation:</span><br/><br/>
+      <span class="span"> Once you perceive the motion speed on edges <strong>A</strong> and <strong>B</strong> as <strong>similar</strong>, click on "next trial" to validate your result:</span><br/><br/>
       <br/><br/><br/><br/>
       <button style="margin-left: 200px; visibility:hidden;" id="decreaseMotion" class="motion_button"> next trial </button>
     </div>
     <!-- <button type="submit" class="flat_button" id="next_trial"> Ok </button><br/> -->
     <span style="margin-left: 1600px;" id="spacePress">Press Enter when ready to start the trial.</span>
     <div id="number_trial">
-      <span>Trial : <%= trial %> / 52</span><br/>
-      <span>User : <%= id_user %> </span>
+      <span style="color:black;">Trial : <%= trial %> / 52</span><br/>
+      <span style="color:black;">User : <%= id_user %> </span>
     </div>
 
 
@@ -224,20 +224,27 @@ function loadGraph(){
     }
     for (var i = 0; i < graph.links.length; i++) {
       if ( Number(graph.links[i].id) === Number(graph.reference)) {
-        graph.links[i].color = edgesExp.reference.color
+
+      if (data_path.includes("height")){ graph.links[i].height = edgesExp.reference.color }
+      if (data_path.includes("lumi")){ graph.links[i].color = edgesExp.reference.color }
+      if (data_path.includes("width")){ graph.links[i].visual_pattern = edgesExp.reference.color }
+
         graph.links[i].speed = edgesExp.reference.speed
         index_edge_reference = i;
         console.log(edgesExp.reference.speed);
         graph.links[i].special = true;
       }if ( Number(graph.links[i].id) === Number(graph.target)) {
-        graph.links[i].color = edgesExp.target.color
+
+        if (data_path.includes("height")){ graph.links[i].height = edgesExp.target.color }
+        if (data_path.includes("lumi")){ graph.links[i].color = edgesExp.target.color }
+        if (data_path.includes("width")){ graph.links[i].visual_pattern = edgesExp.target.color }
+
         graph.links[i].speed = edgesExp.target.speed
         index_edge_target = i;
         graph.links[i].special = true;
         console.log(edgesExp.target.speed);
       }
     }
-
   for (var i = 0; i < graph.nodes.length; i++) {
     sou = false
     tar = false
@@ -251,7 +258,7 @@ function loadGraph(){
     }
   }
 
-    d3.select("#visFrame").append('svg').attr('id', "visFrameSVG").attr('width', 1500).attr('height', 1300).style("background", "#ffffff")
+    d3.select("#visFrame").append('svg').attr('id', "visFrameSVG").attr('width', 1500).attr('height', 1300).style("background", "#777")
         flownet_graph = flownet.graph("#visFrameSVG")
           .nodes(graph.nodes)
           .links(graph.links)
@@ -268,8 +275,18 @@ function loadGraph(){
           .node_properties('label_font', 'arial')
           .node_properties('label_color', 'black')
 */
-          .link_properties("color", "#f5F5F5")
-          .link_properties("size", 8)
+          .link_properties("color", function(d){
+            console.log(d.color);
+            /*if ( d.color === "#ffffff" || d.color === "#aaaaaa")*/ return "#7c7c7c"
+            /*if ( d.color === "#555555" || d.color === "#000000")*/ return "#7c7c7c"
+          })
+          .link_properties("size", function(){
+            if (data_path.includes("height")){
+              return 17 + 2*4
+            }else{
+              return 4 + 2*4
+            }
+          })
           .link_properties("visibility", "hidden")
           .link_properties("interpolation", "basis")
           .link_properties("points", function(d){
@@ -286,53 +303,32 @@ function loadGraph(){
                 }
               }
 
-             if ( y2 < y1 ){
-               distance = Math.sqrt(Math.pow(x1-x2,2)+Math.pow(y1-y2,2))
-               let interAngle = (Math.max(x2,x1)-Math.min(x2,x1))/distance
-               if ( interAngle > 1 ) interAngle = 1
-               if ( interAngle < -1 ) interAngle = -1
-               angle = Math.acos(interAngle) + Math.PI/2
-               if ( x2 > x1 && Math.acos(interAngle) < 0.01 ) { angle += 0 }
-               else if ( x2 > x1 ){ angle += Math.PI/2.8 }
-               angle = angle + Math.PI
+              distance1 = Math.sqrt(Math.pow(x1-x2,2)+Math.pow(y1-y2,2))
+              let UVector = { x:x2-x1, y:y2-y1}
+              let VVector = { x:2, y:(-UVector.x/UVector.y)*2}
 
-               cx1 = x1 + 4 * Math.cos(angle)
-               cy1 = y1 + 4 * Math.sin(angle)
-               cx2 = x1 + 24 * Math.cos(angle)
-               cy2 = y1 + 24 * Math.sin(angle)
-               cx3 = x1 + (distance/5) * Math.cos(angle)
-               cy3 = y1 + (distance/5) * Math.sin(angle)
-             }else{
-               distance = Math.sqrt(Math.pow(x1-x2,2)+Math.pow(y1-y2,2))
-               let interAngle = (x2-x1)/distance
-               if ( interAngle > 1 ) interAngle = 1
-               if ( interAngle < -1 ) interAngle = -1
-               angle = Math.acos(interAngle) + Math.PI/2
+              centerX = (x1+x2)/2
+              centerY = (y1+y2)/2
+              distance2 = Math.sqrt(Math.pow(VVector.x,2)+Math.pow(VVector.y,2))
+              let WVector = { x:VVector.x/distance2, y:VVector.y/distance2}
 
-               cx1 = x1 + 4 * Math.cos(angle)
-               cy1 = y1 + 4 * Math.sin(angle)
-               cx2 = x1 + 24 * Math.cos(angle)
-               cy2 = y1 + 24 * Math.sin(angle)
-               cx3 = x1 + (distance/5) * Math.cos(angle)
-               cy3 = y1 + (distance/5) * Math.sin(angle)
-             }
-
-             centerX = (x1+x2)/2
-             centerY = (y1+y2)/2
-             cx3 = centerX - (x1-cx3)
-             cy3 = centerY - (y1-cy3)
+              cx3 = centerX - (WVector.x*(distance1/4))
+              cy3 = centerY - (WVector.y*(distance1/4))
+              console.log(VVector.x, VVector.y, distance2, WVector.x,WVector.y, (WVector.x*(distance1*12)), (WVector.y*(distance1*12)));
 
             return [{x:cx3, y:cy3}]
+
           })
 
-          .particles('computationalMethod', "Speed-Spacing-RelativePattern")
-          .particles('height', 2)
-          .particles('size', 8.5)
-          .particles('pattern', function(d){
+          .particles('computationalMethod', "Speed-Spacing-AbsolutePattern")
+          .particles('height', function(d){
+            return d.height
+          })
+          .particles('visual_pattern', function(d){
             return d.pattern
           })
           .particles('spacing', function(d){
-            return d.spacing
+            return Number(d.spacing) + Number(d.pattern[0])
           })
           .particles('speed', function(d,i){
             return 12*d.speed;
@@ -630,6 +626,9 @@ function createLinkReferenceLabel(){
    		default:
    	}
     if ( event.keyCode === 32 && pressSpaceBar){
+      if ( pressSpaceBar ){
+        send_data("")
+      }
       //createLinkModular()
       /*d3.select('#spacePress').remove()
       pressSpaceBar = true
