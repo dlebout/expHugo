@@ -25,6 +25,8 @@ widthDefault = [[12]]
 height = [4, 6.5, 11, 17]
 heightDefault = [4]
 
+chroma = ["#008aff","#957400","#009b74","#ff007d"]
+chroma = ["#00caff","#e0b500","#ff00be","#00e6b6"]
 
 #                           85%        74%      59%        45%      32%         15%
 #luminance_achromatic = ["#d9d9d9","#bdbdbd","#969696","#737373","#525252", "#252525"]
@@ -87,6 +89,9 @@ def firstPart():
 
     graphCreation(speed,widthDefault,colorDefault,height, "./edges_layout_height")
     edgesCreationJND( speed, height, "./edges_layout_height", '/edgesJND-luminant.json', "other" )
+
+    graphCreation(speed, widthDefault, chroma, heightDefault, "./edges_layout_chroma")
+    edgesCreationJND(speed, luminance_achromatic, "./edges_layout_chroma", '/edgesJND-luminant.json', "other" )
     #edgesCreationUS(group, speedUS, luminance_achromatic, "./speed_luminance_achromatic")
 
 
@@ -96,11 +101,12 @@ def graphCreation(speedA,frequencyA,colorA,sizeA, path):
         res = crossMotion( speedA, frequencyA, colorA, sizeA)
         for indexB in range(1,4):
             dataLayoutFixed = 0
-            with open("edges_layout/graph" + str(indexA) + "_" + str(indexB) + ".json" ) as data_file:
-                print "edges_layout/graph" + str(indexA) + "_" + str(indexB) + ".json"
+            with open("graph_layout/graph" + str(indexA) + ".json" ) as data_file:
                 dataLayoutFixed = json.load(data_file)
+
             iteration = 0
             dataLayoutFixed["links"][iteration]["id"]
+
             for n in range(0,len(dataLayoutFixed["links"])):
                 if ( iteration%len(res) == 0):
                     shuffleAndDifferent(res, 0)
@@ -110,6 +116,8 @@ def graphCreation(speedA,frequencyA,colorA,sizeA, path):
                 dataLayoutFixed["links"][iteration]["height"] = res[iteration%len(res)][3]
                 dataLayoutFixed["links"][iteration]["spacing"] = "30"
                 iteration += 1
+                dataLayoutFixed["reference"] = dataLayoutFixed["pos"][indexB-1]["reference"]
+                dataLayoutFixed["target"] = dataLayoutFixed["pos"][indexB-1]["target"]
             saveGraph(dataLayoutFixed,path, "/graph" + str(indexA) + "_" + str(indexB) + ".json")
 
     #{"sizeParticule": "10", "target": 27, "OLDSOURCE": 12, "color": "black", "temporal": [0.0], "OLDTARGET": 42, "source": 1, "shape": "rectangle", "frequency": 0.25, "speed": 1, "id": 40}

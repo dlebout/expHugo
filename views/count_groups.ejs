@@ -267,14 +267,14 @@ function loadGraph(){
           .node_properties("size", 7)
           .node_properties("x", function(d, i) {return d.X ; })
           .node_properties("y", function(d, i) {return d.Y ;  })
-/*
+
           .node_properties('label_text', function(d, i){return 'id:'+d.id})
           .node_properties('label_x', function(d){ return d.X+12})
           .node_properties('label_y', function(d){ return d.Y-12})
           .node_properties('label_size', 16)
           .node_properties('label_font', 'arial')
           .node_properties('label_color', 'black')
-*/
+
           .link_properties("color", function(d){
             console.log(d.color);
             /*if ( d.color === "#ffffff" || d.color === "#aaaaaa")*/ return "#7c7c7c"
