@@ -268,7 +268,7 @@ function create_db_expe(staticVariables){
   // if (!fs.existsSync('db/database_user_'+id_utilisateur+'.csv')) {
   //   console.log("CREATE FILE");
 
-  db_expe = csv.createCsvStreamWriter(fs.createWriteStream('db/logs/log_user_'+id_utilisateur+'_'+date+'.csv'), { separator : ';' });
+  db_expe = csv.createCsvStreamWriter(fs.createWriteStream('db/logs/log_user_width_'+id_utilisateur+'_'+date+'.csv'), { separator : ';' });
 
 
   header = ["participant",

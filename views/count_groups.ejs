@@ -314,7 +314,6 @@ function loadGraph(){
 
               cx3 = centerX - (WVector.x*(distance1/4))
               cy3 = centerY - (WVector.y*(distance1/4))
-              console.log(VVector.x, VVector.y, distance2, WVector.x,WVector.y, (WVector.x*(distance1*12)), (WVector.y*(distance1*12)));
 
             return [{x:cx3, y:cy3}]
 
@@ -374,61 +373,36 @@ function showGraph(){
 
 function createLinkReferenceLabel(){
 
-         let centerX,centerY,x1,y1,x2,y2 = 0;
-         let angle,distance = 0;
-         for (var i = 0; i < graph.nodes.length; i++) {
-           if ( Number(graph.nodes[i].id) === Number(graph.links[index_edge_reference].source) ) {
-             x1 = graph.nodes[i].X
-             y1 = graph.nodes[i].Y
-           }
-           if ( Number(graph.nodes[i].id) === Number(graph.links[index_edge_reference].target) ) {
-             x2 = graph.nodes[i].X
-             y2 = graph.nodes[i].Y
-           }
-         }
-
-  if ( y2 < y1 ){
-    distance = Math.sqrt(Math.pow(x1-x2,2)+Math.pow(y1-y2,2))
-    let interAngle = (Math.max(x2,x1)-Math.min(x2,x1))/distance
-    if ( interAngle > 1 ) interAngle = 1
-    if ( interAngle < -1 ) interAngle = -1
-    angle = Math.acos(interAngle) + Math.PI/2
-    if ( x2 > x1 && Math.acos(interAngle) < 0.01 ) { angle += 0 }
-    else if ( x2 > x1 ){ angle += Math.PI/2.8 }
-
-    angle = angle + Math.PI
-    console.log("A", Math.acos(interAngle),angle);
-
-    cx1 = x1 + 4 * Math.cos(angle)
-    cy1 = y1 + 4 * Math.sin(angle)
-    cx2 = x1 + 24 * Math.cos(angle)
-    cy2 = y1 + 24 * Math.sin(angle)
-    cx3 = x1 + 40 * Math.cos(angle)
-    cy3 = y1 + 40 * Math.sin(angle)
-  }else{
-    distance = Math.sqrt(Math.pow(x1-x2,2)+Math.pow(y1-y2,2))
-    let interAngle = (x2-x1)/distance
-    if ( interAngle > 1 ) interAngle = 1
-    if ( interAngle < -1 ) interAngle = -1
-    angle = Math.acos(interAngle) + Math.PI/2
-    console.log("A", Math.acos(interAngle),angle);
-
-    cx1 = x1 + 4 * Math.cos(angle)
-    cy1 = y1 + 4 * Math.sin(angle)
-    cx2 = x1 + 24 * Math.cos(angle)
-    cy2 = y1 + 24 * Math.sin(angle)
-    cx3 = x1 + 40 * Math.cos(angle)
-    cy3 = y1 + 40 * Math.sin(angle)
+  let centerX,centerY,x1,y1,x2,y2 = 0;
+  let angle,distance = 0;
+  for (var i = 0; i < graph.nodes.length; i++) {
+    if ( Number(graph.nodes[i].id) === Number(graph.links[index_edge_reference].source) ) {
+      x1 = graph.nodes[i].X
+      y1 = graph.nodes[i].Y
+    }
+    if ( Number(graph.nodes[i].id) === Number(graph.links[index_edge_reference].target) ) {
+      x2 = graph.nodes[i].X
+      y2 = graph.nodes[i].Y
+    }
   }
+
+  distance1 = Math.sqrt(Math.pow(x1-x2,2)+Math.pow(y1-y2,2))
+  let UVector = { x:x2-x1, y:y2-y1}
+  let VVector = { x:2, y:(-UVector.x/UVector.y)*2}
 
   centerX = (x1+x2)/2
   centerY = (y1+y2)/2
-  cx1 = centerX + (x1-cx1)
-  cy1 = centerY + (y1-cy1)
-  cx2 = centerX + (x1-cx2)
-  cy2 = centerY + (y1-cy2)
-  cx3 = centerX + (x1-cx3)
-  cy3 = centerY + (y1-cy3)
+  distance2 = Math.sqrt(Math.pow(VVector.x,2)+Math.pow(VVector.y,2))
+  let WVector = { x:VVector.x/distance2, y:VVector.y/distance2}
+
+  cx3 = centerX
+  cy3 = centerY
+
+
+  cx1 = centerX - (WVector.x*(distance1/10))
+  cy1 = centerY - (WVector.y*(distance1/10))
+  cx2 = centerX - (WVector.x*(distance1/18))
+  cy2 = centerY - (WVector.y*(distance1/18))
 
   d3.select("#markerOverlay").append('text')
     .text("A")
@@ -453,60 +427,36 @@ function createLinkReferenceLabel(){
 
    function createLinkModularLabel(){
 
-       let centerX,centerY,x1,y1,x2,y2 = 0;
-       let angle,distance = 0;
-       for (var i = 0; i < graph.nodes.length; i++) {
-         if ( Number(graph.nodes[i].id) === Number(graph.links[index_edge_target].source) ) {
-           x1 = graph.nodes[i].X
-           y1 = graph.nodes[i].Y
-         }
-         if ( Number(graph.nodes[i].id) === Number(graph.links[index_edge_target].target) ) {
-           x2 = graph.nodes[i].X
-           y2 = graph.nodes[i].Y
-         }
+     let centerX,centerY,x1,y1,x2,y2 = 0;
+     let angle,distance = 0;
+     for (var i = 0; i < graph.nodes.length; i++) {
+       if ( Number(graph.nodes[i].id) === Number(graph.links[index_edge_target].source) ) {
+         x1 = graph.nodes[i].X
+         y1 = graph.nodes[i].Y
        }
-
-       if ( y2 < y1 ){
-         distance = Math.sqrt(Math.pow(x1-x2,2)+Math.pow(y1-y2,2))
-         let interAngle = (Math.max(x2,x1)-Math.min(x2,x1))/distance
-         if ( interAngle > 1 ) interAngle = 1
-         if ( interAngle < -1 ) interAngle = -1
-         angle = Math.acos(interAngle) + Math.PI/2
-         if ( x2 > x1 && Math.acos(interAngle) < 0.01 ) { angle += 0 }
-         else if ( x2 > x1 ){ angle += Math.PI/2.8 }
-         angle = angle + Math.PI
-         console.log("A", Math.acos(interAngle),angle);
-
-         cx1 = x1 + 4 * Math.cos(angle)
-         cy1 = y1 + 4 * Math.sin(angle)
-         cx2 = x1 + 24 * Math.cos(angle)
-         cy2 = y1 + 24 * Math.sin(angle)
-         cx3 = x1 + 36 * Math.cos(angle)
-         cy3 = y1 + 36 * Math.sin(angle)
-       }else{
-         distance = Math.sqrt(Math.pow(x1-x2,2)+Math.pow(y1-y2,2))
-         let interAngle = (x2-x1)/distance
-         if ( interAngle > 1 ) interAngle = 1
-         if ( interAngle < -1 ) interAngle = -1
-         angle = Math.acos(interAngle) + Math.PI/2
-         console.log("B", Math.acos(interAngle),angle);
-
-         cx1 = x1 + 4 * Math.cos(angle)
-         cy1 = y1 + 4 * Math.sin(angle)
-         cx2 = x1 + 24 * Math.cos(angle)
-         cy2 = y1 + 24 * Math.sin(angle)
-         cx3 = x1 + 36 * Math.cos(angle)
-         cy3 = y1 + 36 * Math.sin(angle)
+       if ( Number(graph.nodes[i].id) === Number(graph.links[index_edge_target].target) ) {
+         x2 = graph.nodes[i].X
+         y2 = graph.nodes[i].Y
        }
+     }
 
-       centerX = (x1+x2)/2
-       centerY = (y1+y2)/2
-       cx1 = centerX + (x1-cx1)
-       cy1 = centerY + (y1-cy1)
-       cx2 = centerX + (x1-cx2)
-       cy2 = centerY + (y1-cy2)
-       cx3 = centerX + (x1-cx3)
-       cy3 = centerY + (y1-cy3)
+     distance1 = Math.sqrt(Math.pow(x1-x2,2)+Math.pow(y1-y2,2))
+     let UVector = { x:x2-x1, y:y2-y1}
+     let VVector = { x:2, y:(-UVector.x/UVector.y)*2}
+
+     centerX = (x1+x2)/2
+     centerY = (y1+y2)/2
+     distance2 = Math.sqrt(Math.pow(VVector.x,2)+Math.pow(VVector.y,2))
+     let WVector = { x:VVector.x/distance2, y:VVector.y/distance2}
+
+     cx3 = centerX
+     cy3 = centerY
+
+
+     cx1 = centerX - (WVector.x*(distance1/10))
+     cy1 = centerY - (WVector.y*(distance1/10))
+     cx2 = centerX - (WVector.x*(distance1/18))
+     cy2 = centerY - (WVector.y*(distance1/18))
 
        d3.select("#markerOverlay").append('text')
          .text("B")
