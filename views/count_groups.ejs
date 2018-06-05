@@ -259,7 +259,8 @@ function loadGraph(){
   }
 
     d3.select("#visFrame").append('svg').attr('id', "visFrameSVG").attr('width', 1500).attr('height', 1300).style("background", "#777")
-        flownet_graph = flownet.graph("#visFrameSVG")
+      .append("g").attr("id", "groupsvg").attr("transform", "translate(0,50)")
+        flownet_graph = flownet.graph("#groupsvg")
           .nodes(graph.nodes)
           .links(graph.links)
 
@@ -267,14 +268,14 @@ function loadGraph(){
           .node_properties("size", 7)
           .node_properties("x", function(d, i) {return d.X ; })
           .node_properties("y", function(d, i) {return d.Y ;  })
-
+/*
           .node_properties('label_text', function(d, i){return 'id:'+d.id})
           .node_properties('label_x', function(d){ return d.X+12})
           .node_properties('label_y', function(d){ return d.Y-12})
           .node_properties('label_size', 16)
           .node_properties('label_font', 'arial')
           .node_properties('label_color', 'black')
-
+*/
           .link_properties("color", function(d){
             console.log(d.color);
             /*if ( d.color === "#ffffff" || d.color === "#aaaaaa")*/ return "#7c7c7c"
@@ -416,6 +417,7 @@ function createLinkReferenceLabel(){
     .attr('y', function(d){
       return cy3
     })
+    .attr('transform', "translate(0,50)")
   d3.select("#markerOverlay").append('line')
     .attr('x1', cx1)
     .attr('y1', cy1)
@@ -423,6 +425,7 @@ function createLinkReferenceLabel(){
     .attr('y2', cy2)
     .attr('stroke', 'black')
     .attr('stroke-width', 3)
+    .attr('transform', "translate(0,50)")
 }
 
    function createLinkModularLabel(){
@@ -470,6 +473,7 @@ function createLinkReferenceLabel(){
          .attr('y', function(d){
            return cy3
          })
+    .attr('transform', "translate(0,50)")
        d3.select("#markerOverlay").append('line')
          .attr('x1', cx1)
          .attr('y1', cy1)
@@ -477,6 +481,7 @@ function createLinkReferenceLabel(){
          .attr('y2', cy2)
          .attr('stroke', 'black')
          .attr('stroke-width', 3)
+    .attr('transform', "translate(0,50)")
    }
 
    function createLinkModular(){
