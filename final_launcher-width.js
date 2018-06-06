@@ -275,11 +275,11 @@ function create_db_expe(staticVariables){
   	"trial",
     "practice",
     "speed",
-    "delta_luminance",
+    "delta_var",
     "action",
     "completion_time",
-    "edgeA_speed", "edgeA_color",
-    "edgeB_original_speed", "edgeB_speed", "edgeB_color",
+    "edgeA_speed", "edgeA_var",
+    "edgeB_original_speed", "edgeB_speed", "edgeB_var",
     "delta_speed"
   ]
 
@@ -298,18 +298,26 @@ function add_to_table(value){
   graphA = JSON.parse(value.graphA);
   graphB = JSON.parse(value.graphB);
   graphBClean = JSON.parse(value.graphBClean);
+  graphAClean = JSON.parse(value.graphAClean);
   keyList = JSON.parse(value.keyPressedList);
   completionTime = JSON.parse(value.completion_time);
+
+
+    delta_var = "same"
+    if ( expe.luminance_pair === "11" || expe.luminance_pair === 11) delta_var = "small"
+    if ( expe.luminance_pair === "40" || expe.luminance_pair === 40) delta_var = "medium"
+    if ( expe.luminance_pair === "70" || expe.luminance_pair === 70) delta_var = "high"
+
   res = [id_utilisateur,
         expe.trial,
         expe.practice,
         (Number(expe.speed_reference)*12*23.5)/100,
-        expe.luminance_pair,
+        delta_var,
         expe.speed_target,
         completionTime,
-        (Number(graphA.speed)*12*23.5)/100, graphA.color,
-        (Number(graphBClean.speed)*12*23.5)/100, (Number(graphB.speed)*12*23.5)/100, graphB.color,
-        (Number(graphB.speed-graphA.speed)*12*23.5)/100, //d3.hsl(graphA.color).l-d3.hsl(graphB.color).l ,
+        (Number(graphA.speed)*12*23.5)/100, graphAClean.color,
+        (Number(graphBClean.speed)*12*23.5)/100, (Number(graphB.speed)*12*23.5)/100, graphBClean.color,
+        (Math.abs(Number(graphB.speed-graphBClean.speed)*12*23.5))/100, //d3.hsl(graphA.color).l-d3.hsl(graphB.color).l ,
       ]
 
   db_expe.writeRecord(res);

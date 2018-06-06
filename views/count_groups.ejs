@@ -210,6 +210,7 @@ function getEdges(){
   console.log(edge_path);
   $.get( edge_path, function(dataEdge) {
     edgesExp = dataEdge[edgeOption[0]][edgeOption[1]][edgeOption[2]]
+    console.log(edgesExp);
     loadGraph()
   });
 }
@@ -227,7 +228,7 @@ function loadGraph(){
 
       if (data_path.includes("height")){ graph.links[i].height = edgesExp.reference.color }
       if (data_path.includes("lumi")){ graph.links[i].color = edgesExp.reference.color }
-      if (data_path.includes("width")){ graph.links[i].visual_pattern = edgesExp.reference.color }
+      if (data_path.includes("width")){ graph.links[i].pattern = edgesExp.reference.color }
 
         graph.links[i].speed = edgesExp.reference.speed
         index_edge_reference = i;
@@ -237,7 +238,7 @@ function loadGraph(){
 
         if (data_path.includes("height")){ graph.links[i].height = edgesExp.target.color }
         if (data_path.includes("lumi")){ graph.links[i].color = edgesExp.target.color }
-        if (data_path.includes("width")){ graph.links[i].visual_pattern = edgesExp.target.color }
+        if (data_path.includes("width")){ graph.links[i].pattern = edgesExp.target.color }
 
         graph.links[i].speed = edgesExp.target.speed
         index_edge_target = i;
