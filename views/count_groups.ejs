@@ -159,7 +159,7 @@
     </div>
     <!-- <button type="submit" class="flat_button" id="next_trial"> Ok </button><br/> -->
     <span style="margin-left: 1600px;" id="spacePress">Press Enter when ready to start the trial.</span>
-    <input style="margin-left: 1655px; width: 500px; visibility:hidden;" type="range" min="1" max="120" value="60" step="1" class="slider" id="sliderExp" onchange="onChangeSlider(this.value)" onfocusout="this.focus()">
+    <input style="margin-left: 1530px; width: 750px; visibility:hidden;" type="range" min="1" max="120" value="60" step="1" class="slider" id="sliderExp" oninput="onChangeSlider(this.value)" onfocusout="this.focus()">
     <div id="number_trial">
       <span style="color:black;">Trial : <%= trial %> / 52</span><br/>
       <span style="color:black;">User : <%= id_user %> </span>
