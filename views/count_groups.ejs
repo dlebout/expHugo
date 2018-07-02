@@ -152,7 +152,8 @@
       <button id="increaseMotion" class="motion_button"> Increase </button><br/>
     </div> -->
     <div class="number_groups">
-      <span class="span"> Press <strong>left arrow key</strong> to <strong>decrease</strong> the motion speed on edge <strong>B</strong> or <br/>press <strong>right arrow key</strong> to <strong>increase</strong> the motion speed on edge <strong>B</strong>.</span><br/>
+      <span class="span"> Adjust the motion speed on edge B by using the slider below. Moving the knob toward the <strong>right increases speed</strong>;
+        moving it toward the <strong>left decreases it</strong>.</span><br/>
       <span class="span"> Once you perceive the motion speed on edges <strong>A</strong> and <strong>B</strong> as <strong>similar</strong>, <br/>click on "next trial" to validate your result:</span><br/><br/>
       <br/><br/><br/><br/>
       <button style="margin-left: 200px; visibility:hidden;" id="decreaseMotion" class="motion_button"> next trial </button>
@@ -192,7 +193,8 @@ var index_edge_reference;
 var index_edge_target;
 
 var flownet_graph;
-var flownet_edges;
+var flownet_edgesR;
+var flownet_edgesT;
 
 var pressSpaceBar = false
 var start,end;
@@ -235,7 +237,7 @@ function loadGraph(){
         graph.links[i].speed = edgesExp.reference.speed
         index_edge_reference = i;
         console.log(edgesExp.reference.speed);
-        graph.links[i].special = true;
+        graph.links[i].specialR = true;
       }if ( Number(graph.links[i].id) === Number(graph.target)) {
 
         if (data_path.includes("height")){ graph.links[i].height = edgesExp.target.color }
@@ -245,7 +247,7 @@ function loadGraph(){
 
         graph.links[i].speed = edgesExp.target.speed
         index_edge_target = i;
-        graph.links[i].special = true;
+        graph.links[i].specialT = true;
         console.log(edgesExp.target.speed);
       }
     }
@@ -343,13 +345,16 @@ function loadGraph(){
           .particles("visibility", "hidden")
 
 
-          flownet_edges = flownet_graph.selectAll()
+          flownet_edgesR = flownet_graph.selectAll()
             .filters(function(d,i){
-                return d.special
+                return d.specialR
             })
             .link_properties("visibility", "visible")
-
-          console.log(flownet_edges);
+          flownet_edgesT = flownet_graph.selectAll()
+            .filters(function(d,i){
+                return d.specialT
+            })
+            .link_properties("visibility", "visible")
 
             //.particule_properties("color", function(d, i) { return d.color })
           createLinkReferenceLabel()
@@ -492,7 +497,7 @@ function createLinkReferenceLabel(){
 
    function onChangeSlider(value){
      graph.links[index_edge_target].speed = sliderArray[value]
-     flownet_edges.stop()
+     flownet_edgesT.stop()
       .particles("speed", function(d){ return d.speed*12 })
       .start()
       console.log(graph.links[index_edge_reference].speed,graph.links[index_edge_target].speed);
