@@ -5,6 +5,8 @@ require(ggplot2)
 total <- global
 total <- within(total, delta_speed <- edgeB_speed)
 total <- subset(total, practice == "false")
+#total <- subset(total, participant == "13")
+#total <- subset(total, visual_variable == "chroma" | visual_variable == "lumi" | visual_variable == "height")
 
 cdata <- aggregate(total["delta_speed"], by=total[c("speed","visual_variable")], FUN=length)
 names(cdata)[names(cdata)=="delta_speed"] <- "N"
@@ -39,6 +41,8 @@ p
 total <- global
 total <- within(total, delta_speed <- abs(edgeB_speed-edgeA_speed))
 total <- subset(total, practice == "false")
+#total <- subset(total, participant == "13")
+total <- subset(total, visual_variable == "chroma" | visual_variable == "lumi" | visual_variable == "height")
 
 cdata <- aggregate(total["delta_speed"], by=total[c("speed","visual_variable")], FUN=length)
 names(cdata)[names(cdata)=="delta_speed"] <- "N"
